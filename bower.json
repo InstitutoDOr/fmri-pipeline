@@ -5,10 +5,14 @@
     "Bruno Melo <bruno.melo@idor.org>",
     "Sebastian Hoefle <sebastian.hoefle@idor.org@idor.org>"
   ],
+  "moduleType": "matlab",
   "homepage": "https://github.com/InstitutoDOr/fmri-pipeline#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/InstitutoDOr/fmri-pipeline.git"
+  },
+  "dependencies": {
+	  "matlab-utils": ""
   },
   "keywords": [
     "spm",
