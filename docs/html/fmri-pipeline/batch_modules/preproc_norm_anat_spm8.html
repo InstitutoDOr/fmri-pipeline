@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of preproc_norm_anat_spm8</title>
+  <meta name="keywords" content="preproc_norm_anat_spm8">
+  <meta name="description" content="%%%%%%Coregristration anatomy to mean, estimate only %%%%%%%%%%%%">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html fmri-pipeline --><!-- menu.html batch_modules -->
+<h1>preproc_norm_anat_spm8
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>%%%%%%Coregristration anatomy to mean, estimate only %%%%%%%%%%%%</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment">%%%%%%Coregristration anatomy to mean, estimate only %%%%%%%%%%%%</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="coregistration_T1.html" class="code" title="">coregistration_T1</a>	</li><li><a href="coregristration_ana_mean.html" class="code" title="">coregristration_ana_mean</a>	</li><li><a href="normalize_functional.html" class="code" title="">normalize_functional</a>	</li><li><a href="normalize_structural.html" class="code" title="">normalize_structural</a>	</li><li><a href="segmentation.html" class="code" title="">segmentation</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../fmri-pipeline/core/preprocessing.html" class="code" title="function preprocessing( config )">preprocessing</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 <span class="comment">%%%%%%%Coregristration anatomy to mean, estimate only %%%%%%%%%%%%</span>
+0002 
+0003 clear matlabbatch;
+0004 <a href="coregristration_ana_mean.html" class="code" title="">coregristration_ana_mean</a>
+0005 files(end+1).name = fullfile( preproc_dir, <span class="string">'BATCH_%d_COREG_ANA_MEAN.mat'</span>);
+0006 files(end).matlabbatch = matlabbatch;
+0007 files(end).message = sprintf( <span class="string">'Coregristration anatomy to mean for subject: %s\n%s\n'</span>, name_subj{i}, preproc_dir);
+0008 
+0009 <span class="comment">%%%%%%%Coregristration mean and all images to T1 (in order to move images to the MNI space)%%%%%%%%%%%%</span>
+0010 
+0011 clear matlabbatch;
+0012 <a href="coregistration_T1.html" class="code" title="">coregistration_T1</a>
+0013 files(end+1).name = fullfile( preproc_dir, <span class="string">'BATCH_%d_COREG_T1.mat'</span>);
+0014 files(end).matlabbatch = matlabbatch;
+0015 files(end).message = sprintf( <span class="string">'Coregistration all images to T1 (MNI space) for subject: %s\n%s\n'</span>, name_subj{i}, preproc_dir);
+0016 
+0017 normpdf = correctFilename( sprintf(<span class="string">'cor_%s.pdf'</span>, name_subj{i} ) );
+0018 files(end).execs = {<span class="string">'idor.utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', '''</span> normpdf <span class="string">''');'</span>};
+0019 
+0020 <span class="comment">%%%%%%% Segmentation anatomy %%%%%%%%%%%%</span>
+0021 
+0022 clear matlabbatch;
+0023 <a href="segmentation.html" class="code" title="">segmentation</a>
+0024 files(end+1).name = fullfile( preproc_dir, <span class="string">'BATCH_%d_SEGMENTATION.mat'</span>);
+0025 files(end).matlabbatch = matlabbatch;
+0026 files(end).message = sprintf( <span class="string">'Segmentation anatomy for subject: %s\n%s\n'</span>, name_subj{i}, preproc_dir);
+0027 
+0028 <span class="comment">%%%%%%% Normalization functional images (using parameters from segmentation) %%%%%%%%%%%%</span>
+0029 
+0030 clear matlabbatch;
+0031 <a href="normalize_functional.html" class="code" title="">normalize_functional</a>
+0032 files(end+1).name = fullfile( preproc_dir, <span class="string">'BATCH_%d_NORM_FUNCT.mat'</span>);
+0033 files(end).matlabbatch = matlabbatch;
+0034 files(end).message = sprintf( <span class="string">'Normalization functional images for subject: %s\n%s\n'</span>, name_subj{i}, preproc_dir);
+0035 
+0036 <span class="comment">%%%%%%% Normalization anatomy (using parameters from segmentation) %%%%%%%%%%%%</span>
+0037 clear matlabbatch;
+0038 <a href="normalize_structural.html" class="code" title="">normalize_structural</a>
+0039 files(end+1).name = fullfile( preproc_dir, <span class="string">'BATCH_%d_NORM_STRUCT.mat'</span>);
+0040 files(end).matlabbatch = matlabbatch;
+0041 files(end).message = sprintf( <span class="string">'Normalization structural images for subject: %s\n%s\n'</span>, name_subj{i}, preproc_dir );
+0042</pre></div>
+<hr><address>Generated on Wed 22-Feb-2017 17:13:16 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

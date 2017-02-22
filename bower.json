@@ -7,12 +7,16 @@
   ],
   "moduleType": "matlab",
   "homepage": "https://github.com/InstitutoDOr/fmri-pipeline#readme",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/InstitutoDOr/fmri-pipeline.git"
   },
   "dependencies": {
-	  "matlab-utils": ""
+	"matlab-utils": ""
+  },
+  "devDependencies": {
+    "m2html": "http://www.artefact.tk/software/matlab/m2html/m2html.zip"
   },
   "keywords": [
     "spm",
