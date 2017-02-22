@@ -1,0 +1,32 @@
+{
+  "name": "fmri-pipeline",
+  "description": "Package with tools for create pipelines to process fMRI data",
+  "authors": [
+    "Bruno Melo <bruno.melo@idor.org>",
+    "Sebastian Hoefle <sebastian.hoefle@idor.org@idor.org>"
+  ],
+  "homepage": "https://github.com/InstitutoDOr/fmri-pipeline#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InstitutoDOr/fmri-pipeline.git"
+  },
+  "keywords": [
+    "spm",
+    "nfiti",
+    "neuroscience",
+    "matlab"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "data",
+    "vendors",
+    "docs",
+    "matlabbatch"
+  ],
+  "bugs": {
+    "url": "https://github.com/InstitutoDOr/fmri-pipeline/issues"
+  }
+}
