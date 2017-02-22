@@ -5,14 +5,14 @@ matlabbatch{1}.spm.spatial.preproc.output.CSF = [0 0 0];
 matlabbatch{1}.spm.spatial.preproc.output.biascor = 1;
 matlabbatch{1}.spm.spatial.preproc.output.cleanup = 0;
 matlabbatch{1}.spm.spatial.preproc.opts.tpm = {
-                                               fullfile(spm_dir,'tpm/grey.nii')
-                                               fullfile(spm_dir,'tpm/white.nii')
-                                               fullfile(spm_dir,'tpm/csf.nii')
-                                               };
+    fullfile(spm_dir,'tpm/grey.nii')
+    fullfile(spm_dir,'tpm/white.nii')
+    fullfile(spm_dir,'tpm/csf.nii')
+    };
 matlabbatch{1}.spm.spatial.preproc.opts.ngaus = [2
-                                                 2
-                                                 2
-                                                 4];
+    2
+    2
+    4];
 matlabbatch{1}.spm.spatial.preproc.opts.regtype = 'mni';
 matlabbatch{1}.spm.spatial.preproc.opts.warpreg = 1;
 matlabbatch{1}.spm.spatial.preproc.opts.warpco = 25;
