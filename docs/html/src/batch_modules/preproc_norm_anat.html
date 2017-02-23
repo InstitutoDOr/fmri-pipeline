@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of preproc_norm_anat</title>
+  <meta name="keywords" content="preproc_norm_anat">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- ../menu.html src --><!-- menu.html batch_modules -->
+<h1>preproc_norm_anat
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="box"><strong>This is a script file. </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../src/utils/get_run_dir.html" class="code" title="function [ runDir ] = get_run_dir( config, nRun )">get_run_dir</a>	GET_RUN_DIR returns the right name for the run with number nRun</li><li><a href="../../src/utils/get_scans_concatenated.html" class="code" title="function scans = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, prefix_run )">get_scans_concatenated</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../../matlabicon.gif)">
+<li><a href="../../src/core/preprocessing.html" class="code" title="function preprocessing( config )">preprocessing</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../../up.png"></a></h2>
+<div class="fragment"><pre>0001 clear matlabbatch;
+0002 
+0003 run1_dir = <a href="../../src/utils/get_run_dir.html" class="code" title="function [ runDir ] = get_run_dir( config, nRun )">get_run_dir</a>(config, 1);
+0004 meanpat = fullfile( preproc_dir, run1_dir, sprintf( <span class="string">'%s%s.nii'</span>, run_file_prefix, run_file_suffix ) );
+0005 dirfs = dir( meanpat );
+0006 meanfile = fullfile( preproc_dir, run1_dir, [<span class="string">'meanr'</span> dirfs(1).name] );
+0007 
+0008 
+0009 
+0010 <span class="comment">%% from SPM_JOBMAN</span>
+0011 matlabbatch{1}.spm.spatial.preproc.channel.vols = {fullfile( preproc_dir, <span class="string">'ANAT'</span>, anat_file )};
+0012 matlabbatch{1}.spm.spatial.preproc.channel.biasreg = 0.001;
+0013 matlabbatch{1}.spm.spatial.preproc.channel.biasfwhm = 60;
+0014 matlabbatch{1}.spm.spatial.preproc.channel.write = [0 1];
+0015 matlabbatch{1}.spm.spatial.preproc.tissue(1).tpm = {fullfile(spm_dir,<span class="string">'tpm/TPM.nii,1'</span>)};
+0016 matlabbatch{1}.spm.spatial.preproc.tissue(1).ngaus = 1;
+0017 matlabbatch{1}.spm.spatial.preproc.tissue(1).native = [1 0];
+0018 matlabbatch{1}.spm.spatial.preproc.tissue(1).warped = [1 0];
+0019 matlabbatch{1}.spm.spatial.preproc.tissue(2).tpm = {fullfile(spm_dir,<span class="string">'tpm/TPM.nii,2'</span>)};
+0020 matlabbatch{1}.spm.spatial.preproc.tissue(2).ngaus = 1;
+0021 matlabbatch{1}.spm.spatial.preproc.tissue(2).native = [1 0];
+0022 matlabbatch{1}.spm.spatial.preproc.tissue(2).warped = [1 0];
+0023 matlabbatch{1}.spm.spatial.preproc.tissue(3).tpm = {fullfile(spm_dir,<span class="string">'tpm/TPM.nii,3'</span>)};
+0024 matlabbatch{1}.spm.spatial.preproc.tissue(3).ngaus = 2;
+0025 matlabbatch{1}.spm.spatial.preproc.tissue(3).native = [1 0];
+0026 matlabbatch{1}.spm.spatial.preproc.tissue(3).warped = [1 0];
+0027 matlabbatch{1}.spm.spatial.preproc.tissue(4).tpm = {fullfile(spm_dir,<span class="string">'tpm/TPM.nii,4'</span>)};
+0028 matlabbatch{1}.spm.spatial.preproc.tissue(4).ngaus = 3;
+0029 matlabbatch{1}.spm.spatial.preproc.tissue(4).native = [0 0];
+0030 matlabbatch{1}.spm.spatial.preproc.tissue(4).warped = [0 0];
+0031 matlabbatch{1}.spm.spatial.preproc.tissue(5).tpm = {fullfile(spm_dir,<span class="string">'tpm/TPM.nii,5'</span>)};
+0032 matlabbatch{1}.spm.spatial.preproc.tissue(5).ngaus = 4;
+0033 matlabbatch{1}.spm.spatial.preproc.tissue(5).native = [0 0];
+0034 matlabbatch{1}.spm.spatial.preproc.tissue(5).warped = [0 0];
+0035 matlabbatch{1}.spm.spatial.preproc.tissue(6).tpm = {fullfile(spm_dir,<span class="string">'tpm/TPM.nii,6'</span>)};
+0036 matlabbatch{1}.spm.spatial.preproc.tissue(6).ngaus = 2;
+0037 matlabbatch{1}.spm.spatial.preproc.tissue(6).native = [0 0];
+0038 matlabbatch{1}.spm.spatial.preproc.tissue(6).warped = [0 0];
+0039 matlabbatch{1}.spm.spatial.preproc.warp.mrf = 1;
+0040 matlabbatch{1}.spm.spatial.preproc.warp.cleanup = 1;
+0041 matlabbatch{1}.spm.spatial.preproc.warp.reg = [0 0.001 0.5 0.05 0.2];
+0042 matlabbatch{1}.spm.spatial.preproc.warp.affreg = <span class="string">'mni'</span>;
+0043 matlabbatch{1}.spm.spatial.preproc.warp.fwhm = 0;
+0044 matlabbatch{1}.spm.spatial.preproc.warp.samp = 3;
+0045 matlabbatch{1}.spm.spatial.preproc.warp.write = [0 1];
+0046 
+0047 <span class="comment">%%</span>
+0048 matlabbatch{2}.cfg_basicio.file_dir.cfg_fileparts.files(1) = cfg_dep(<span class="string">'Segment: Bias Corrected (1)'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'channel'</span>, <span class="string">'()'</span>,{1}, <span class="string">'.'</span>,<span class="string">'biascorr'</span>, <span class="string">'()'</span>,{<span class="string">':'</span>}));
+0049 
+0050 <span class="comment">%%</span>
+0051 matlabbatch{3}.spm.util.imcalc.input(1) = cfg_dep(<span class="string">'Segment: Bias Corrected (1)'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'channel'</span>, <span class="string">'()'</span>,{1}, <span class="string">'.'</span>,<span class="string">'biascorr'</span>, <span class="string">'()'</span>,{<span class="string">':'</span>}));
+0052 matlabbatch{3}.spm.util.imcalc.input(2) = cfg_dep(<span class="string">'Segment: c1 Images'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'tiss'</span>, <span class="string">'()'</span>,{1}, <span class="string">'.'</span>,<span class="string">'c'</span>, <span class="string">'()'</span>,{<span class="string">':'</span>}));
+0053 matlabbatch{3}.spm.util.imcalc.input(3) = cfg_dep(<span class="string">'Segment: c2 Images'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'tiss'</span>, <span class="string">'()'</span>,{2}, <span class="string">'.'</span>,<span class="string">'c'</span>, <span class="string">'()'</span>,{<span class="string">':'</span>}));
+0054 matlabbatch{3}.spm.util.imcalc.input(4) = cfg_dep(<span class="string">'Segment: c3 Images'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'tiss'</span>, <span class="string">'()'</span>,{3}, <span class="string">'.'</span>,<span class="string">'c'</span>, <span class="string">'()'</span>,{<span class="string">':'</span>}));
+0055 matlabbatch{3}.spm.util.imcalc.output = <span class="string">'Brain'</span>;
+0056 matlabbatch{3}.spm.util.imcalc.outdir(1) = cfg_dep(<span class="string">'Get Pathnames: Directories (unique)'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{2}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'up'</span>));
+0057 matlabbatch{3}.spm.util.imcalc.expression = <span class="string">'(i2 + i3 + i4) .* i1'</span>;
+0058 matlabbatch{3}.spm.util.imcalc.var = struct(<span class="string">'name'</span>, {}, <span class="string">'value'</span>, {});
+0059 matlabbatch{3}.spm.util.imcalc.options.dmtx = 0;
+0060 matlabbatch{3}.spm.util.imcalc.options.mask = 0;
+0061 matlabbatch{3}.spm.util.imcalc.options.interp = 1;
+0062 matlabbatch{3}.spm.util.imcalc.options.dtype = 4;
+0063 
+0064 <span class="comment">%%</span>
+0065 matlabbatch{4}.spm.spatial.coreg.estimate.ref(1) = cfg_dep(<span class="string">'Image Calculator: Imcalc Computed Image'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{3}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'files'</span>));
+0066 matlabbatch{4}.spm.spatial.coreg.estimate.source = {meanfile};
+0067 matlabbatch{4}.spm.spatial.coreg.estimate.other = <a href="../../src/utils/get_scans_concatenated.html" class="code" title="function scans = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, prefix_run )">get_scans_concatenated</a>( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, <span class="string">'ar'</span>);
+0068 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.cost_fun = <span class="string">'nmi'</span>;
+0069 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.sep = [4 2];
+0070 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.tol = [0.02 0.02 0.02 0.001 0.001 0.001 0.01 0.01 0.01 0.001 0.001 0.001];
+0071 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.fwhm = [7 7];
+0072 
+0073 <span class="comment">%%</span>
+0074 matlabbatch{5}.spm.spatial.normalise.write.subj.def(1) = cfg_dep(<span class="string">'Segment: Forward Deformations'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'fordef'</span>, <span class="string">'()'</span>,{<span class="string">':'</span>}));
+0075 matlabbatch{5}.spm.spatial.normalise.write.subj.resample = <a href="../../src/utils/get_scans_concatenated.html" class="code" title="function scans = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, prefix_run )">get_scans_concatenated</a>( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, <span class="string">'ar'</span>);
+0076 matlabbatch{5}.spm.spatial.normalise.write.woptions.bb = [-78 -112 -70
+0077     78 76 85];
+0078 matlabbatch{5}.spm.spatial.normalise.write.woptions.vox = [3 3 3];
+0079 matlabbatch{5}.spm.spatial.normalise.write.woptions.interp = 4;
+0080 
+0081 <span class="comment">%%</span>
+0082 matlabbatch{6}.spm.spatial.normalise.write.subj.def(1) = cfg_dep(<span class="string">'Segment: Forward Deformations'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'fordef'</span>, <span class="string">'()'</span>,{<span class="string">':'</span>}));
+0083 matlabbatch{6}.spm.spatial.normalise.write.subj.resample(1) = cfg_dep(<span class="string">'Image Calculator: ImCalc Computed Image: Brain'</span>, substruct(<span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{3}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}, <span class="string">'.'</span>,<span class="string">'val'</span>, <span class="string">'{}'</span>,{1}), substruct(<span class="string">'.'</span>,<span class="string">'files'</span>));
+0084 matlabbatch{6}.spm.spatial.normalise.write.woptions.bb = [-78 -112 -70
+0085                                                           78 76 85];
+0086 matlabbatch{6}.spm.spatial.normalise.write.woptions.vox = [1 1 1];
+0087 matlabbatch{6}.spm.spatial.normalise.write.woptions.interp = 4;
+0088 
+0089 
+0090 
+0091 <span class="comment">%% Setting execution script</span>
+0092 
+0093 files(end+1).name = fullfile( preproc_dir, <span class="string">'BATCH_%d_NORM_ANAT.mat'</span>);
+0094 files(end).matlabbatch = matlabbatch;
+0095 files(end).message = sprintf( <span class="string">'Normalization structural images for subject: %s\n%s\n'</span>, name_subj{i}, preproc_dir );</pre></div>
+<hr><address>Generated on Thu 23-Feb-2017 18:08:09 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -40,7 +40,7 @@ for m=1:length(models)
         
     end
     
-    tmp_destdir = correctFilename( fullfile( destdir, ['SUBJS' sprintf('_%s', subjspat) ] ) );
+    tmp_destdir = utils.correctFilename( fullfile( destdir, ['SUBJS' sprintf('_%s', subjspat) ] ) );
     tmp_destdir = strrep(tmp_destdir, '*', '');
     if ~isdir( tmp_destdir ), mkdir( tmp_destdir ), end
     

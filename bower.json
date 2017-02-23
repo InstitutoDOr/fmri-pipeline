@@ -1,6 +1,6 @@
 {
   "name": "fmri-pipeline",
-  "description": "Package with tools for create pipelines to process fMRI data",
+  "description": "Package with tools for the generation of pipelines to process fMRI data",
   "authors": [
     "Bruno Melo <bruno.melo@idor.org>",
     "Sebastian Hoefle <sebastian.hoefle@idor.org>"
@@ -13,15 +13,15 @@
     "url": "git+https://github.com/InstitutoDOr/fmri-pipeline.git"
   },
   "dependencies": {
-	"matlab-utils": "0.1.*"
+	"matlab-utils": "*"
   },
   "devDependencies": {
     "m2html": "http://www.artefact.tk/software/matlab/m2html/m2html.zip"
   },
   "keywords": [
+    "neuroscience",
     "spm",
     "nifti",
-    "neuroscience",
     "matlab"
   ],
   "ignore": [

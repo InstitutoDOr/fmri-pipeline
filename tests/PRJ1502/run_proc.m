@@ -4,7 +4,7 @@ bootstrap; % Pré-configura o processamento deste projeto
 config.subj_prefix = 'SUBJ';
 
 %% EDITAR AQUI PARA CONFIGURAR O QUE RODAR
-subjs = 1:41;
+subjs = 1;
 subjsIgnore = [5 6 18 40 42:50]; %Sujeitos que precisam ser removidos
 config.subjs = setdiff( subjs, subjsIgnore );
 config.subjid_complete = 1;
@@ -15,7 +15,7 @@ config.resp_regressor = 0;
 config.only_batch_files = 0;
 config.norm_anat = 1; %Informa se faz ou não a normalizacao anatomica
 config.preserve_indir = 1; % Mantem o nome dos diretorios
-config.export_from_raw_data = 0;
+config.export_from_raw_data = 1;
 
 if( ~config.norm_anat )
     config.preproc_name  = 'NORM';
@@ -23,10 +23,10 @@ if( ~config.norm_anat )
     config.proc_base       = fullfile( config.dir_base, 'PROC_DATA', 'fMRI', config.preproc_name );
 end
 
-config.do.preprocessing = 0;
-config.do.first_level   = 0;
+config.do.preprocessing = 1;
+config.do.first_level   = 1;
 config.do.second_level  = 1;
-config.do.extract_betas  = 0;
+config.do.extract_betas  = 1;
 config.start_prefix = '';
  
 %% Modelos

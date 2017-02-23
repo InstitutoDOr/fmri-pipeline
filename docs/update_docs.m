@@ -1,11 +1,12 @@
 function update_docs()
 % UPDATE_DOCS Function to update documentation for this library
 curdir = pwd;
-root_dir = 'fmri-pipeline';
+output = fullfile('./docs/html');
 
-cd ../..
-addpath( fullfile(pwd, 'm2html') );
-m2html('mfiles', root_dir, 'htmldir', fullfile(root_dir, '/docs/html'), ...
+cd ..;
+addpath( fullfile(pwd, '..', 'vendors', 'm2html') );
+rmdir(output, 's');
+m2html('mfiles', 'src', 'htmldir', output, ...
     'recursive','on', 'global','on', ...
     'template','frame', 'index','menu');
 

@@ -12,7 +12,7 @@
 % spm_pmod: list of values for parametric modulation matching the list of
 % pres_codes
 function model = get_supraliminar_model_simple_onesec( config )
-import idor.utils.Var;
+import utils.Var;
 
 duration = Var.get(config, 'duration_conds', 1);
 categories = { 'lexachievement', 'lexbenevolence', 'lexcontrol', 'lexpseudopalavra', 'choice', 'ganhou|doou|no_response' };

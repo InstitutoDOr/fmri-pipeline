@@ -13,7 +13,7 @@
 % spm_pmod: list of values for parametric modulation matching the list of
 % pres_codes
 function model = get_supraliminar_model_nogap( config )
-import idor.utils.Var;
+import utils.Var;
 
 mod_parametric = Var.get(config, 'mod_parametric', false);
 decision = Var.get(config, 'decision', false);
