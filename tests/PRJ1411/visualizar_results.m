@@ -21,7 +21,7 @@ end
 
 %Defining subjs
 for pattern = patterns
-    files = idor.utils.find( dir_ativs, [pattern{1} '\/.*.' p_thr '.*.nii$'], 'f' );
+    files = utils.find( dir_ativs, [pattern{1} '\/.*.' p_thr '.*.nii$'], 'f' );
     for file = files
         fprintf('** Arquivo: %s\n\n', file{1})
         sOverlays = sprintf(' -o %s -l 0.1 -h 0.1', overlays{:});

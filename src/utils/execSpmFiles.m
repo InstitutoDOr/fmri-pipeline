@@ -18,7 +18,7 @@ for k=1:length(files)
     %% If is to execute
     if( execute )
         spm_jobman('run',matlabbatch);
-        execs = idor.utils.Var.get( files(k), 'execs', false);
+        execs = utils.Var.get( files(k), 'execs', false);
         if iscell(execs)
             eval([files(k).execs{:}]);
         end

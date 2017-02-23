@@ -12,7 +12,7 @@ for k=1:length(model.contrast)
     
 end
 
-if idor.utils.Var.get( model, 'contrasts_f', true ) == 1
+if utils.Var.get( model, 'contrasts_f', true ) == 1
     if length(sessions(1).names) > 0
         matlabbatch{1}.spm.stats.con.consess{length(model.contrast)+1}.fcon.name = 'EOI';
         matlabbatch{1}.spm.stats.con.consess{length(model.contrast)+1}.fcon.convec = { eye(length(sessions(1).names)); }';

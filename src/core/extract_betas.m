@@ -1,7 +1,7 @@
 function extract_betas( config )
 
-import idor.utils.Var;
-import idor.processing.spm.batch_modules.firstlevel.oneSession;
+import utils.Var;
+import neuro.spm.oneSession;
 
 for nM=1:length(config.model)
     
@@ -27,7 +27,7 @@ for nM=1:length(config.model)
         if Var.get( config, 'one_session' )
             matlabbatch{1}.spm.stats.fmri_spec = oneSession( config, matlabbatch{1}.spm.stats.fmri_spec );
         end
-        matlabbatch{1} = idor.utils.explode_trials( matlabbatch{1} );
+        matlabbatch{1} = neuro.spm.explode_trials( matlabbatch{1} );
         
         fprintf( 'EXTRACTING BETAS FOR SUBJECT  %s\n', subjid );
         save( fullfile( destdir, 'BETA_FIRST_LEVEL.mat'), 'matlabbatch' );

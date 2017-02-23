@@ -1,3 +1,4 @@
+function model = model_test( config )
 % def structure with following fields:
 % pres_type: type name of event
 % pres_codes: list of numerical codes that define a condition in SPM
@@ -12,10 +13,10 @@
 % will be set to zero
 % spm_pmod: list of values for parametric modulation matching the list of
 % pres_codes
-function model = get_supraliminar_model_simple( config )
+
 import utils.Var;
 
-model.name = 'SIMPLE';
+model.name = 'TEST';
 
 duration = Var.get(config, 'duration_conds', 0);
 decision = Var.get(config, 'decision', 0);

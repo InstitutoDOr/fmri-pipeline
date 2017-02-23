@@ -1,4 +1,4 @@
-import idor.utils.Var;
+import utils.Var;
 
 if ~isdir( dest_dir_subj ), mkdir( dest_dir_subj ), end
 
