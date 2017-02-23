@@ -4,7 +4,7 @@ bootstrap_test; % Pré-configura o processamento deste projeto
 config.subj_prefix = 'SUBJ';
 
 %% EDITAR AQUI PARA CONFIGURAR O QUE RODAR
-config.subjs = 2;
+config.subjs = [1 2];
 config.subjid_complete = 1;
 config.only_recalculate_contrasts = 0;
 config.only_estimate = 0;
@@ -21,9 +21,9 @@ if( ~config.norm_anat )
     config.proc_base       = fullfile( config.dir_base, 'PROC_DATA', 'fMRI', config.preproc_name );
 end
 
-config.do.preprocessing = 1;
-config.do.first_level   = 1;
-config.do.second_level  = 1;
+config.do.preprocessing = 0;
+config.do.first_level   = 0;
+config.do.second_level  = 0;
 config.do.extract_betas = 1;
 config.start_prefix     = '';
  
@@ -38,10 +38,10 @@ config.first_level_preproc_prefix = 'swar';
 %config.HPF = 320;
 
 %% SECOND LEVEL
-config.sec.g1 = 1;
+config.sec.g1 = config.subjs;
 config.sec.g1_name = 'NFB';
-config.sec.g2 = 1;
+config.sec.g2 = [];
 config.sec.g2_name = 'CTL';
-config.sec.name = 'TWO_SAMPLE';
+config.sec.name = 'ONE_SAMPLE';
 
 exec_procs(config);

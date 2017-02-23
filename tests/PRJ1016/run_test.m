@@ -46,8 +46,8 @@ config.resp_regressor = 0;
 config.one_session = 1;
 
 config.do.preprocessing  = 0;
-config.do.first_level    = 1;
-config.do.second_level   = 1;
+config.do.first_level    = 0;
+config.do.second_level   = 0;
 config.do.extract_betas  = 1;
 
 %% configure paths

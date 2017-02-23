@@ -16,7 +16,7 @@ for nM=1:length(config.model)
     
     %Irá executar para cada sujeito
     for nS = config.subjs
-        subjid = sprintf('%s%03d',config.subj_prefix, nS);
+        subjid = get_subjid(config, nS);
         destdir = fullfile( destdir_base, subjid );
         load( fullfile( datadir, subjid, 'BATCH_1_FIRST_LEVEL.mat' ) );
         
