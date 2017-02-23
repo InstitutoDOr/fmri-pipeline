@@ -1,5 +1,5 @@
 function run_second_level( config )
-execute = ~idor.utils.Var.get( config, 'only_batch_files', false);
+execute = ~utils.Var.get( config, 'only_batch_files', false);
 files = {};
 for m = 1:length(config.model)
     %% checking model

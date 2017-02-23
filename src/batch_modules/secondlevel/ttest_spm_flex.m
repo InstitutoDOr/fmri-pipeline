@@ -1,4 +1,4 @@
-import idor.utils.Var;
+import utils.Var;
 matlabbatch{1}.spm.stats.factorial_design.dir = {dest_dir};
 
 fl_base = fullfile( config.proc_base, 'STATS', 'FIRST_LEVEL',  subdir_name);

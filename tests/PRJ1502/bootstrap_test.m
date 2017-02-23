@@ -1,4 +1,5 @@
 %% bootstrap
+%execRec('/dados1/PROJETOS/PRJ1502_NFB_MOTOR_II/03_PROCS/RAW_DATA', @limpaWIP);
 init;
 
 % Abre SPM para gerar gráficos
@@ -12,7 +13,7 @@ tmp_dir = fullfile(pwd, 'tmp');
 config = [];
 
 %% GENERAL PARAMETERS
-config.preproc_name  = 'NORM_ANAT';
+config.preproc_name    = 'NORM_ANAT';
 config.dir_base        = '/dados1/PROJETOS/PRJ1502_NFB_MOTOR_II/03_PROCS/';
 config.raw_base        = fullfile( config.dir_base, 'RAW_DATA', 'NII' );
 config.preproc_base    = fullfile( tmp_dir, 'PREPROC_DATA', 'fMRI', config.preproc_name );
@@ -42,4 +43,4 @@ config.subj_prefix = 'SUBJ';
 
 %% configure paths
 config.spm_dir = fileparts( which( 'spm' ) );
-addpath( genpath( fullfile( config.dir_base, 'SCRIPTS') ) );
+%addpath( genpath( fullfile( config.dir_base, 'SCRIPTS') ) );

@@ -1,8 +1,8 @@
 function scans = get_scans( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, prefix_run )
 if ~exist('prefix_run','var'), prefix_run = ''; end;
 
-file_format = idor.utils.Var.get(config, 'run_file_extension', 'nii');
-dimensions = idor.utils.Var.get(config, 'run_file_dimensions', 4);
+file_format = utils.Var.get(config, 'run_file_extension', 'nii');
+dimensions = utils.Var.get(config, 'run_file_dimensions', 4);
 imgname = sprintf( '%s%s', run_file_prefix, run_file_suffix);
 
 scans = [];

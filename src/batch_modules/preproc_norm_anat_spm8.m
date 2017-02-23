@@ -15,7 +15,7 @@ files(end).matlabbatch = matlabbatch;
 files(end).message = sprintf( 'Coregistration all images to T1 (MNI space) for subject: %s\n%s\n', name_subj{i}, preproc_dir);
 
 normpdf = correctFilename( sprintf('cor_%s.pdf', name_subj{i} ) );
-files(end).execs = {'idor.utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
+files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
 
 %%%%%%% Segmentation anatomy %%%%%%%%%%%%
 

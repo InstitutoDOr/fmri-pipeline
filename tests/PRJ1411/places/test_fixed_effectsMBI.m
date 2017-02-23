@@ -1,4 +1,4 @@
-function fixed_effects_MBI( subjspat )
+function test_fixed_effectsMBI( subjspat )
 models = { 'MOV_MBI' };
 nReg = 7; %Parâmetros de movimento
 
@@ -7,7 +7,7 @@ for m=1:length(models)
     model_name = models{m};
     fprintf('FIXED EFFECT - %s\n', model_name);
     
-    stats_dir = '/dados2/PROJETOS/PRJ1411_NFB_VR/03_PROCS/PROC_DATA/fMRI_ANAT/STATS';
+    stats_dir = fullfile(pwd, 'tmp', 'STATS');
     datadir = fullfile( stats_dir, 'FIRST_LEVEL', model_name );
     destdir = fullfile( stats_dir, 'FIXED_EFFECT', 'MBI' );
     fprintf('OUT DIR - %s\n', destdir);

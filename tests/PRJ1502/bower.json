@@ -5,6 +5,6 @@
     "Bruno Melo <bruno.melo@idor.org>"
   ],
   "dependencies": {
-    "fmri-pipeline": "1.*"
+    "fmri-pipeline": "b1.0.2"
   }
 }

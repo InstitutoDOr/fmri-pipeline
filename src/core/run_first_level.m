@@ -40,7 +40,7 @@ end
 
 
 function prepare_and_run_FL( config, name_subj, model, preproc_dir )
-import idor.utils.Var;
+import utils.Var;
 %% set parameters first level
 subdir_name = model.name;
 if config.mov_regressor
@@ -69,7 +69,7 @@ for r=1:config.nrun
     if( ~isfield( config, 'presentation' ) || config.presentation)
         logfile = fullfile( config.logdir, sprintf('%s*%s', name_subj, config.files{r} ) );
         logfile = getFilePattern(logfile, 'LAST');
-        logHandle = Log( logfile );
+        logHandle = utils.stimulus.presentation.Log( logfile );
         [conditions start_time_seg] = logHandle.processPresentation( model.def, model );
     else
         if length(model.conditions) > 1
@@ -97,7 +97,7 @@ for r=1:config.nrun
         %% MOVIMENT
     if config.mov_regressor
         mov_file = fullfile( preproc_dir, run_dir, sprintf(mov_reg_pat, config.run_file_prefix) );
-        mov_file = resolve_name( mov_file );
+        mov_file = utils.resolve_name( mov_file );
         sessions(r).regfile = join_regressor( sessions(r).regfile, mov_file );
         
         sessions(r).regcontrast(end+1).name = 'MOV';
@@ -142,7 +142,7 @@ if ~config.only_recalculate_contrasts
     first_level_spec_and_estimate;
     %% one session (merge all sessions)
     if Var.get(config, 'one_session')
-        import idor.processing.spm.batch_modules.firstlevel.oneSession;
+        import neuro.spm.oneSession;
         matlabbatch{1}.spm.stats.fmri_spec = oneSession( config, matlabbatch{1}.spm.stats.fmri_spec );
     end
     save( files{end}, 'matlabbatch' );
