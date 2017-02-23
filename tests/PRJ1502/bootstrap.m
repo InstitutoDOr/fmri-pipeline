@@ -7,6 +7,7 @@ if isempty(spm('Figname'))
     spm fmri;
 end
 
+tmp_dir = fullfile(pwd, '..');
 
 %% configurations 
 config = [];
@@ -15,8 +16,8 @@ config = [];
 config.preproc_name  = 'NORM_ANAT';
 config.dir_base        = '/dados1/PROJETOS/PRJ1502_NFB_MOTOR_II/03_PROCS/';
 config.raw_base        = fullfile( config.dir_base, 'RAW_DATA', 'NII' );
-config.preproc_base    = fullfile( config.dir_base, 'PREPROC_DATA', 'fMRI', config.preproc_name );
-config.proc_base       = fullfile( config.dir_base, 'PROC_DATA', 'fMRI', config.preproc_name );
+config.preproc_base    = fullfile( tmp_dir, 'PREPROC_DATA', 'fMRI', config.preproc_name );
+config.proc_base       = fullfile( tmp_dir, 'PROC_DATA', 'fMRI', config.preproc_name );
 config.nrun = 6;
 config.nvol = 100;
 config.ncorte = 40;
