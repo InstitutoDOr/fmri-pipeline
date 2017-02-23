@@ -12,10 +12,10 @@ config.only_recalculate_contrasts = 0;
 config.only_estimate = 0;
 config.mov_regressor = 1;
 config.resp_regressor = 0;
-config.only_batch_files = 1;
+config.only_batch_files = 0;
 config.norm_anat = 1; %Informa se faz ou não a normalizacao anatomica
 config.preserve_indir = 1; % Mantem o nome dos diretorios
-config.export_from_raw_data = 0;
+config.export_from_raw_data = 1;
 
 if( ~config.norm_anat )
     config.preproc_name  = 'NORM';

@@ -1,2 +1,2 @@
 run( 'vendors/fmri-pipeline/init.m' );
-includeSubdirs( {'model_definitions', 'extra'} );
+utils.path.includeSubdirs( {'model_definitions', 'extra'} );
