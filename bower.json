@@ -13,15 +13,15 @@
     "url": "git+https://github.com/InstitutoDOr/fmri-pipeline.git"
   },
   "dependencies": {
-	"matlab-utils": "0.1.*"
+	"matlab-utils": "0.2.*"
   },
   "devDependencies": {
     "m2html": "http://www.artefact.tk/software/matlab/m2html/m2html.zip"
   },
   "keywords": [
+    "neuroscience",
     "spm",
     "nifti",
-    "neuroscience",
     "matlab"
   ],
   "ignore": [
