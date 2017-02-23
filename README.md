@@ -11,8 +11,10 @@ $ bower install fmri-pipeline
 
 ### Dependencies
 
-matlab-utils [https://github.com/bmelo/matlab-utils#readme]
+* matlab-utils [https://github.com/bmelo/matlab-utils#readme]
 
 ### Documentation
 
-In "docs" folder.
+In "docs/html" folder you can explore the code.
+
+Tests are also examples of how to use this library.
