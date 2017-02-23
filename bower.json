@@ -3,7 +3,7 @@
   "description": "Package with tools for create pipelines to process fMRI data",
   "authors": [
     "Bruno Melo <bruno.melo@idor.org>",
-    "Sebastian Hoefle <sebastian.hoefle@idor.org@idor.org>"
+    "Sebastian Hoefle <sebastian.hoefle@idor.org>"
   ],
   "moduleType": "matlab",
   "homepage": "https://github.com/InstitutoDOr/fmri-pipeline#readme",
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/InstitutoDOr/fmri-pipeline.git"
   },
   "dependencies": {
-	"matlab-utils": "0.*"
+	"matlab-utils": "0.1.*"
   },
   "devDependencies": {
     "m2html": "http://www.artefact.tk/software/matlab/m2html/m2html.zip"

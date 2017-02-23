@@ -9,12 +9,9 @@ Using bower
 $ bower install fmri-pipeline
 ```
 
-or Cloning
+### Dependencies
 
-```sh
-$ git clone https://github.com/InstitutoDOr/fmri-pipeline.git
-```
-
+matlab-utils [https://github.com/bmelo/matlab-utils#readme]
 
 ### Documentation
 
