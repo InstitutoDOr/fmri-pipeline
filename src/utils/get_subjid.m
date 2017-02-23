@@ -1,5 +1,5 @@
 function [ subjid ] = get_subjid( config, nS, treat )
-import idor.utils.Var;
+import utils.Var;
 
 if ~exist('treat', 'var'); treat = true; end;
 

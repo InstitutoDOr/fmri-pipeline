@@ -1,2 +1,2 @@
 run('../matlab-utils/init.m');
-includeSubdirs( {'src'});
+utils.path.includeSubdirs( {'src'});

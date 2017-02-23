@@ -1,5 +1,4 @@
-run('../matlab-utils/init.m');
-includeSubdirs( {
+utils.path.includeSubdirs( {
     'batch_modules'
     'core'
     'model_definitions'

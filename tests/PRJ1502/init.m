@@ -1,2 +1,2 @@
-run( 'vendors/fmri-pipeline/init.m' );
+run( '../../init.m' );
 includeSubdirs( {'model_definitions'} );

@@ -13,7 +13,7 @@
 % spm_pmod: list of values for parametric modulation matching the list of
 % pres_codes
 function model = get_supraliminar_model_simple( config )
-import idor.utils.Var;
+import utils.Var;
 
 model.name = 'SIMPLE';
 

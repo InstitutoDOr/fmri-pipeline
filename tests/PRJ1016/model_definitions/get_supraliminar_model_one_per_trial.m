@@ -12,7 +12,7 @@
 % spm_pmod: list of values for parametric modulation matching the list of
 % pres_codes
 function model = get_supraliminar_model_one_per_trial( config )
-import idor.utils.Var;
+import utils.Var;
 
 model.name = 'ONE_PER_TRIAL';
 model.def = @conditions_one_per_trial;

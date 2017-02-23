@@ -40,7 +40,7 @@ end
 
 
 function prepare_and_run_FL( config, name_subj, model, preproc_dir )
-import idor.utils.Var;
+import utils.Var;
 %% set parameters first level
 subdir_name = model.name;
 if config.mov_regressor
@@ -142,7 +142,7 @@ if ~config.only_recalculate_contrasts
     first_level_spec_and_estimate;
     %% one session (merge all sessions)
     if Var.get(config, 'one_session')
-        import idor.processing.spm.batch_modules.firstlevel.oneSession;
+        import neuro.spm.oneSession;
         matlabbatch{1}.spm.stats.fmri_spec = oneSession( config, matlabbatch{1}.spm.stats.fmri_spec );
     end
     save( files{end}, 'matlabbatch' );

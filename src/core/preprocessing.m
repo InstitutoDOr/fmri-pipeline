@@ -1,5 +1,5 @@
 function preprocessing( config )
-import idor.utils.Var;
+import utils.Var;
 
 preproc_name = config.preproc_name;
 dir_base = config.dir_base;       
@@ -123,7 +123,7 @@ for i = 1:length(subjs)
             files(end).message = sprintf( 'Realignment for subject: %s\n%s\n', name_subj{i}, preproc_dir);
 
             normpdf = correctFilename( sprintf('mov_%s.pdf', name_subj{i} ) );
-            files(end).execs = {'idor.utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
+            files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
             current_prefix = ['r' current_prefix];
         end
         %%%%%%Slicetiming%%%%%%%%%%%%
@@ -153,7 +153,7 @@ for i = 1:length(subjs)
             files(end).message = sprintf( 'Normalization structural images for subject: %s\n%s\n', name_subj{i}, preproc_dir );
             
             normpdf = correctFilename( sprintf('norm_%s.pdf', name_subj{i} ) );
-            files(end).execs = {'idor.utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
+            files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
         end
         current_prefix = ['w' current_prefix];
         
