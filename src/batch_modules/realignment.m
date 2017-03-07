@@ -4,7 +4,11 @@ switch(spm('Ver'))
         scans = get_scans( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix );
         for ns = 1:length(scans)
             matlabbatch{1}.spm.spatial.realignunwarp.data(ns).scans = scans{ns};
-            matlabbatch{1}.spm.spatial.realignunwarp.data(ns).pmscan = '';
+            if exist('vdms', 'var')
+                matlabbatch{1}.spm.spatial.realignunwarp.data(ns).pmscan = vdms(ns);
+            else
+                matlabbatch{1}.spm.spatial.realignunwarp.data(ns).pmscan = '';
+            end
         end
         matlabbatch{1}.spm.spatial.realignunwarp.eoptions.quality = 1;
         matlabbatch{1}.spm.spatial.realignunwarp.eoptions.sep = 4;

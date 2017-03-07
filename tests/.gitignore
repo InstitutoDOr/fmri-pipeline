@@ -1,5 +1,5 @@
-*/vendors
-*/temp
+vendors/
+/*/temp
 */tmp
 temp/
 tmp/
