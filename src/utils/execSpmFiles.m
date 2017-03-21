@@ -20,7 +20,11 @@ for k=1:length(files)
         spm_jobman('run',matlabbatch);
         execs = utils.Var.get( files(k), 'execs', false);
         if iscell(execs)
-            eval([files(k).execs{:}]);
+            try
+                eval([files(k).execs{:}]);
+            catch
+                warning(sprintf('problems executing %s', [files(k).execs{:}]));
+            end
         end
     end
 end

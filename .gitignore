@@ -1,3 +1,4 @@
 *~
 *.asv
 /.bower.json
+vendors/

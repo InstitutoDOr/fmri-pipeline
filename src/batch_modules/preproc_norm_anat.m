@@ -1,5 +1,3 @@
-clear matlabbatch;
-
 run1_dir = get_run_dir(config, 1);
 meanpat = fullfile( preproc_dir, run1_dir, sprintf( '%s%s.nii', run_file_prefix, run_file_suffix ) );
 dirfs = dir( meanpat );
@@ -87,10 +85,3 @@ matlabbatch{6}.spm.spatial.normalise.write.woptions.bb = [-78 -112 -70
 matlabbatch{6}.spm.spatial.normalise.write.woptions.vox = [1 1 1];
 matlabbatch{6}.spm.spatial.normalise.write.woptions.interp = 4;
 
-
-
-%% Setting execution script
-
-files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_NORM_ANAT.mat');
-files(end).matlabbatch = matlabbatch;
-files(end).message = sprintf( 'Normalization structural images for subject: %s\n%s\n', name_subj{i}, preproc_dir );

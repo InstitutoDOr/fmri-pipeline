@@ -1,0 +1,10 @@
+{
+  "name": "prj1601",
+  "private": true,
+  "authors": [
+    "Bruno Melo <bruno.melo@idor.org>"
+  ],
+  "dependencies": {
+    "fmri-pipeline": "1.1.0"
+  }
+}

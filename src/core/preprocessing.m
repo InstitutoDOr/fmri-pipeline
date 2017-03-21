@@ -25,11 +25,15 @@ anat_file = config.anat_file;
 subjs = config.subjs;
 subj_prefix = config.subj_prefix;
 preserve_indir = ~isempty( Var.get(config, 'runs_dir', [])) && (length(config.runs_dir) == length(config.runs_prefix));
+fieldmap_prefix = Var.get(config, 'fieldmap_prefix', []);
 
 % Steps
+fieldmap = ~isfield(config, 'fieldmap') || config.fieldmap;
 realign = ~isfield(config, 'realign') || config.realign;
 slice_timing = ~isfield(config, 'slice_timing') || config.slice_timing;
 norm_anat = ~isfield(config, 'norm_anat') || config.norm_anat;
+norm_EPI = ~isfield(config, 'norm_EPI') || config.norm_EPI;
+smoothing = ~isfield(config, 'smoothing') || config.smoothing;
 
 if ~isfield(config, 'start_prefix')
     config.start_prefix = '';
@@ -110,11 +114,52 @@ for i = 1:length(subjs)
                 end
             end
             
+            if fieldmap
+                
+                fieldmap_dir = dir( fullfile( raw_dir, fieldmap_prefix ) );
+                fms = sort({fieldmap_dir.name});
+                if length(fms) ~= 2 
+                    error('two files for fieldmap expected')
+                end
+                fmfile = dir( fullfile( raw_dir, fms{1},  '*.nii.gz' ) ); 
+                if length(fmfile) ~= 1 
+                     error('one file per fieldmap directory expected')
+                end
+                fmnames = { 'MAG.nii.gz', 'PHASE.nii.gz' };
+                for k=1:2
+                    infile = fullfile( raw_dir, fms{k}, fmfile(1).name);
+                    outdir = fullfile( preproc_dir, sprintf( 'FIELDMAP') );
+                    outfile = fullfile(outdir, fmnames{k});
+                    fmapfiles{k} = outfile(1:end-3);
+                    if exist(infile, 'file') 
+                        mkdir(outdir)
+                        copyfile(infile, outfile);
+                        system(['gunzip ' outfile]);
+                    end
+                end
+                
+            end
+            
         end
         
         cd( preproc_dir )
-        %%%%%%%Realignment%%%%%%%%%%%%
         
+        %%%%%%%Fieldmap%%%%%%%%%%%%
+        if fieldmap
+            fmap.phase       = fmapfiles{2};
+            fmap.mag         = fmapfiles{1};
+            fmap.TEs         = config.fieldmapTEs;
+            fmap.readoutTime = config.fieldmapReadoutTime;
+            fmap.anat        = fullfile( preproc_dir, 'ANAT', anat_file );
+            clear matlabbatch;
+            calculate_VDM
+            files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_UNWARP.mat');
+            files(end).matlabbatch = matlabbatch;
+            files(end).message = sprintf( 'Unwarping for subject: %s\n%s\n', name_subj{i}, preproc_dir);
+            
+        end
+        
+        %%%%%%%Realignment%%%%%%%%%%%%
         if realign
             clear matlabbatch;
             realignment;
@@ -126,8 +171,8 @@ for i = 1:length(subjs)
             files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
             current_prefix = ['r' current_prefix];
         end
-        %%%%%%Slicetiming%%%%%%%%%%%%
         
+        %%%%%%Slicetiming%%%%%%%%%%%%
         if slice_timing
             clear matlabbatch;
             slicetiming;
@@ -141,10 +186,21 @@ for i = 1:length(subjs)
         if norm_anat
             if strcmp(spm('Ver'), 'SPM8')
                 preproc_norm_anat_spm8
+                current_prefix = ['w' current_prefix];
             else
+                clear matlabbatch
                 preproc_norm_anat;
+                
+                %% Setting execution script
+                files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_NORM_ANAT.mat');
+                files(end).matlabbatch = matlabbatch;
+                files(end).message = sprintf( 'Normalization structural images for subject: %s\n%s\n', name_subj{i}, preproc_dir );
+                
+                normpdf = utils.correctFilename( sprintf('norm_%s.pdf', name_subj{i} ) );
+                files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
+                current_prefix = ['w' current_prefix];
             end
-        else
+        elseif norm_EPI
             %%%%%%% Normalization %%%%%%%%%%%%
             clear matlabbatch;
             normalize_affine
@@ -152,18 +208,21 @@ for i = 1:length(subjs)
             files(end).matlabbatch = matlabbatch;
             files(end).message = sprintf( 'Normalization structural images for subject: %s\n%s\n', name_subj{i}, preproc_dir );
             
-            normpdf = correctFilename( sprintf('norm_%s.pdf', name_subj{i} ) );
+            normpdf = utils.correctFilename( sprintf('norm_%s.pdf', name_subj{i} ) );
             files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
+            current_prefix = ['w' current_prefix];
         end
-        current_prefix = ['w' current_prefix];
+       
         
         %%%%%%% Smoothing functional images  %%%%%%%%%%%%
-        clear matlabbatch;
-        smooth_batch;
-        files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_SMOOTH.mat');
-        files(end).matlabbatch = matlabbatch;
-        files(end).message = sprintf( 'Smoothing functional images for subject: %s\n%s\n', name_subj{i}, preproc_dir);
-        current_prefix = ['s' current_prefix];
+        if smoothing
+            clear matlabbatch;
+            smooth_batch;
+            files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_SMOOTH.mat');
+            files(end).matlabbatch = matlabbatch;
+            files(end).message = sprintf( 'Smoothing functional images for subject: %s\n%s\n', name_subj{i}, preproc_dir);
+            current_prefix = ['s' current_prefix];
+        end
         
         if ~config.only_batch_files
             execSpmFiles( files )
