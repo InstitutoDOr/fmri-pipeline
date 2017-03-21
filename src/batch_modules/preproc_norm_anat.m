@@ -3,7 +3,8 @@ clear matlabbatch;
 run1_dir = get_run_dir(config, 1);
 meanpat = fullfile( preproc_dir, run1_dir, sprintf( '%s%s.nii', run_file_prefix, run_file_suffix ) );
 dirfs = dir( meanpat );
-meanfile = fullfile( preproc_dir, run1_dir, ['meanr' dirfs(1).name] );
+meanprefix = utils.Var.get( config, 'norm_estimate_prefix', 'meanr');
+meanfile = fullfile( preproc_dir, run1_dir, [meanprefix dirfs(1).name ',1'] );
 
 
 
@@ -64,7 +65,7 @@ matlabbatch{3}.spm.util.imcalc.options.dtype = 4;
 %%
 matlabbatch{4}.spm.spatial.coreg.estimate.ref(1) = cfg_dep('Image Calculator: Imcalc Computed Image', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','files'));
 matlabbatch{4}.spm.spatial.coreg.estimate.source = {meanfile};
-matlabbatch{4}.spm.spatial.coreg.estimate.other = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, 'ar');
+matlabbatch{4}.spm.spatial.coreg.estimate.other = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix);
 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.cost_fun = 'nmi';
 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.sep = [4 2];
 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.tol = [0.02 0.02 0.02 0.001 0.001 0.001 0.01 0.01 0.01 0.001 0.001 0.001];
@@ -72,7 +73,7 @@ matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.fwhm = [7 7];
 
 %%
 matlabbatch{5}.spm.spatial.normalise.write.subj.def(1) = cfg_dep('Segment: Forward Deformations', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','fordef', '()',{':'}));
-matlabbatch{5}.spm.spatial.normalise.write.subj.resample = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, 'ar');
+matlabbatch{5}.spm.spatial.normalise.write.subj.resample = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix);
 matlabbatch{5}.spm.spatial.normalise.write.woptions.bb = [-78 -112 -70
     78 76 85];
 matlabbatch{5}.spm.spatial.normalise.write.woptions.vox = [3 3 3];
