@@ -28,7 +28,7 @@ preserve_indir = ~isempty( Var.get(config, 'runs_dir', [])) && (length(config.ru
 fieldmap_prefix = Var.get(config, 'fieldmap_prefix', []);
 
 % Steps
-fieldmap = ~isfield(config, 'fieldmap') || config.fieldmap;
+fieldmap = Var.get(config, 'fieldmap', 0);
 realign = ~isfield(config, 'realign') || config.realign;
 slice_timing = ~isfield(config, 'slice_timing') || config.slice_timing;
 norm_anat = ~isfield(config, 'norm_anat') || config.norm_anat;
