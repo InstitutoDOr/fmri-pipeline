@@ -1,6 +1,6 @@
 {
   "name": "fmri-pipeline",
-  "description": "Package with tools for the generation of pipelines to process fMRI data",
+  "description": "Package with tools for generation of pipelines to process fMRI data",
   "authors": [
     "Bruno Melo <bruno.melo@idor.org>",
     "Sebastian Hoefle <sebastian.hoefle@idor.org>"
