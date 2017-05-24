@@ -13,7 +13,7 @@
     "url": "git+https://github.com/InstitutoDOr/fmri-pipeline.git"
   },
   "dependencies": {
-	"matlab-utils": "~0.3.0"
+	"matlab-utils": "~0.4.0"
   },
   "devDependencies": {
     "m2html": "http://www.artefact.tk/software/matlab/m2html/m2html.zip"
