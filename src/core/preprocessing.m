@@ -29,11 +29,11 @@ fieldmap_prefix = Var.get(config, 'fieldmap_prefix', []);
 
 % Steps
 fieldmap = Var.get(config, 'fieldmap', 0);
-realign = ~isfield(config, 'realign') || config.realign;
-slice_timing = ~isfield(config, 'slice_timing') || config.slice_timing;
-norm_anat = ~isfield(config, 'norm_anat') || config.norm_anat;
-norm_EPI = ~isfield(config, 'norm_EPI') || config.norm_EPI;
-smoothing = ~isfield(config, 'smoothing') || config.smoothing;
+realign = Var.get(config, 'realign', 1);
+slice_timing = Var.get(config, 'slice_timing', 1);
+norm_anat = Var.get(config, 'norm_anat', 1);
+norm_EPI = Var.get(config, 'norm_EPI', 1);
+smoothing = Var.get(config, 'smoothing', 1);
 
 if ~isfield(config, 'start_prefix')
     config.start_prefix = '';
@@ -106,7 +106,7 @@ for i = 1:length(subjs)
                 end
                 indir  = fullfile( raw_dir, raw_dir_run(1).name );
                 outdir = fullfile( preproc_dir, sprintf( 'ANAT') );
-                copy_gunzip( indir, outdir, anat_file );
+                copy_gunzip( indir, outdir, [anat_file '*.gz'] );
             end
             
             if fieldmap
@@ -119,7 +119,7 @@ for i = 1:length(subjs)
                 fmnames = { 'MAG', 'PHASE' };
                 for k=1:2
                     ext = regexp(fms{k},'\.nii(\.gz)*$', 'match', 'once');
-                    outdir = fullfile( preproc_dir, sprintf('FIELDMAP') );
+                    outdir = fullfile( preproc_dir, 'FIELDMAP' );
                     outfile = fullfile(outdir, [fmnames{k} ext]);
                     fmapfiles{k} = regexprep(outfile, '\.gz$', '');
                     if ~ isdir(outdir)
@@ -137,17 +137,17 @@ for i = 1:length(subjs)
         
         %%%%%%%Fieldmap%%%%%%%%%%%%
         if fieldmap
-            fmap.phase       = fmapfiles{2};
-            fmap.mag         = fmapfiles{1};
+            fmapdir          = fullfile( preproc_dir, 'FIELDMAP' );
+            fmap.phase       = fullfile(fmapdir, 'PHASE.nii,1');
+            fmap.mag         = fullfile(fmapdir, 'MAG.nii,1');
             fmap.TEs         = config.fieldmapTEs;
             fmap.readoutTime = config.fieldmapReadoutTime;
-            fmap.anat        = fullfile( preproc_dir, 'ANAT', anat_file );
+            fmap.anat        = fullfile( preproc_dir, 'ANAT', [anat_file ',1'] );
             clear matlabbatch;
-            calculate_VDM
+            calculate_VDM;
             files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_UNWARP.mat');
             files(end).matlabbatch = matlabbatch;
             files(end).message = sprintf( 'Unwarping for subject: %s\n%s\n', name_subj{i}, preproc_dir);
-            
         end
         
         %%%%%%%Realignment%%%%%%%%%%%%
