@@ -17,9 +17,6 @@ else
 end
 smooth = config.smooth;
 export_from_raw_data = config.export_from_raw_data;
-runs_prefix = config.runs_prefix;
-run_file_prefix = config.run_file_prefix;
-run_file_suffix = config.run_file_suffix;
 anat_prefix = config.anat_prefix;
 anat_file = config.anat_file;
 subjs = config.subjs;
@@ -34,6 +31,10 @@ slice_timing = Var.get(config, 'slice_timing', 1);
 norm_anat = Var.get(config, 'norm_anat', 1);
 norm_EPI = Var.get(config, 'norm_EPI', 1);
 smoothing = Var.get(config, 'smoothing', 1);
+
+% BIDS
+BIDS = Var.get(config, 'BIDS', BIDS_struct);
+BIDS.task = Var.get(config, 'task', '');
 
 if ~isfield(config, 'start_prefix')
     config.start_prefix = '';
@@ -78,27 +79,22 @@ for i = 1:length(subjs)
         if export_from_raw_data
             raw_dir = fullfile( raw_base, sdirs(vis).name );
             
-            for r=1:nrun
-                
-                raw_dir_run = dir( fullfile( raw_dir, runs_prefix{r} ) );
-                if length(raw_dir_run) ~= 1
-                    error( 'run not found or several matches found. Please clean up directory %s\n', fullfile( raw_dir, runs_prefix{r} )  );
-                end
-                
-                indir = fullfile( raw_dir, raw_dir_run(1).name );
-                indir = strrep(indir, '{rn}', num2str(r) );
-                prefix = sprintf( '%s%s.nii*', run_file_prefix, run_file_suffix );
-                prefix = strrep(prefix, '{rn}', num2str(r) );
-                
-                if preserve_indir
-                    outdir = fullfile( preproc_dir, config.runs_dir{r} );
-                else
-                    outdir = fullfile( preproc_dir, sprintf( 'RUN%i', r) );
-                end
-                copy_gunzip(indir, outdir, prefix);
-                
+            %% Exporting FUNC data
+            pattern = sprintf('*task-%s*.nii*', BIDS.task);
+            raw_files = utils.resolve_names( fullfile( raw_dir, BIDS.func_dir, pattern ) );
+            
+            % Checking number of RUNs
+            if length(raw_files) ~= nrun
+                error( 'run not found or several matches found. Please clean up directory %s\n', fullfile( raw_dir, runs_prefix{r} )  );
             end
             
+            for raw_file = raw_files                
+                outdir = fullfile( preproc_dir, BIDS.func_dir );
+                file = regexprep(raw_file{1}, '.nii.*$', ''); % Removing extension
+                copy_gunzip(file, outdir);
+            end
+            
+            %% Exporting ANAT data
             if norm_anat
                 raw_dir_run = dir( fullfile( raw_dir, anat_prefix ) );
                 if length(raw_dir_run) ~= 1
@@ -109,8 +105,8 @@ for i = 1:length(subjs)
                 copy_gunzip( indir, outdir, [anat_file '*.gz'] );
             end
             
+            %% Exporting Field Mapping data
             if fieldmap
-                
                 fms = utils.resolve_names( fullfile( raw_dir, fieldmap_prefix, '*.nii*' ) );
                 fms = sort(fms);
                 if length(fms) ~= 2
@@ -231,11 +227,11 @@ catch
 end
 end
 
-function copy_gunzip( indir, outdir, prefix )
+function copy_gunzip( indir, outdir, suffix )
 import utils.resolve_names;
-if nargin < 2, prefix = '*'; end
+if nargin < 3, suffix = '*'; end
 
-files = utils.resolve_names( fullfile(indir, prefix) );
+files = utils.resolve_names( [indir suffix] );
 if( ~isdir(outdir) )
     mkdir( outdir );
 end
