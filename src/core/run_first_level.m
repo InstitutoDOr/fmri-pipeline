@@ -1,7 +1,7 @@
 function run_first_level( config )
-
-if( ~isfield( config, 'mask' ) )
-    config.mask = {'/dados3/SOFTWARES/Blade/toolbox_IDOR/spm8/apriori/brainmask.nii,1'};
+import utils.Var;
+if Var.get( config, 'mask', 1 )
+    config.mask = {[spm('Dir') '/tpm/mask_ICV.nii,1']};
 end
 
 for m = 1:length(config.model)
@@ -66,11 +66,19 @@ dest_dir_subj = fullfile( dest_dir, name_subj );
 sessions = [];
 for r=1:config.nrun
     run_dir = get_run_dir(config, r);
-    if( ~isfield( config, 'presentation' ) || config.presentation)
+    if( Var.get( config, 'presentation', 0 ) )
         logfile = fullfile( config.logdir, sprintf('%s*%s', name_subj, config.files{r} ) );
         logfile = getFilePattern(logfile, 'LAST');
         logHandle = utils.stimulus.presentation.Log( logfile );
         [conditions start_time_seg] = logHandle.processPresentation( model.def, model );
+        
+    % Starting compatibility with BIDS
+    elseif ( Var.get( config, 'events_file', 0 ) )
+        events = utils.resolve_names( fullfile(preproc_dir, run_dir, 'events.tsv') );
+        if ~exist( events{1}, 'file' )
+            error( 'File not found: %s', events{1} );
+        end
+        conditions = extract_conditions( events{1} );
     else
         if length(model.conditions) > 1
             conditions = model.conditions(r);
