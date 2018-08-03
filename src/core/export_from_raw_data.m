@@ -4,7 +4,6 @@ import utils.Var;
 raw_base = config.raw_base;
 preproc_base = config.preproc_base;
 nrun = config.nrun;
-anat_prefix = config.anat_prefix;
 subjs = config.subjs;
 
 % Steps
@@ -14,6 +13,7 @@ norm_anat = Var.get(config, 'norm_anat', 1);
 % BIDS
 BIDS = Var.get(config, 'BIDS', BIDS_struct);
 BIDS.task = Var.get(config, 'task', '');
+BIDS.anat_modality = Var.get(config, 'anat_suffix', BIDS.anat_modality);
 
 if ~isfield(config, 'start_prefix')
     config.start_prefix = '';
