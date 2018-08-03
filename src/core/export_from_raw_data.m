@@ -18,15 +18,14 @@ BIDS.task = Var.get(config, 'task', '');
 if ~isfield(config, 'start_prefix')
     config.start_prefix = '';
 end
-start_prefix = Var.get(config, 'start_prefix', '');
 
 %% start of pipeline
 if ~isdir( preproc_base ), mkdir( preproc_base ); end
 
 for i = 1:length(subjs)
-    name_subj{i} = get_subjid(config, subjs(i));
+    name_subj = get_subjid(config, subjs(i));
     
-    disp (['Exporting data for subject: ', name_subj{i} ]);
+    disp (['Exporting data for subject: ', name_subj ]);
     
     %%%%%%%%%%%%% Prepare Directory structure %%%%%%%%%
     % create subject directory for preprocessing data %
@@ -34,13 +33,12 @@ for i = 1:length(subjs)
     
     % treat first and second visit
     for vis = 1:length(sdirs)
-        current_prefix = start_prefix;
-        preproc_dir = fullfile( preproc_base, name_subj{i} ) ;
+        preproc_dir = fullfile( preproc_base, name_subj ) ;
         
         if ~isdir( preproc_dir ),
             mkdir( preproc_dir );
         else
-            disp( sprintf('preproc directory %s already exists', preproc_dir ) );
+            fprintf('preproc directory %s already exists', preproc_dir );
         end
         
         raw_dir = fullfile( raw_base, sdirs(vis).name );
@@ -51,7 +49,7 @@ for i = 1:length(subjs)
         
         % Checking number of RUNs
         if length(raw_files) ~= nrun
-            error( 'run not found or several matches found. Please clean up directory %s\n', fullfile( raw_dir, runs_prefix{r} )  );
+            error( 'Number of functional runs different of %d.', nrun );
         end
         
         for raw_file = raw_files
