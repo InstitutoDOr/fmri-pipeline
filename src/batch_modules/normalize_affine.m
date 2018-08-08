@@ -5,8 +5,8 @@ matlabbatch{1}.spm.spatial.normalise.estwrite.subj.source = { get_mean_fMRI( pre
 matlabbatch{1}.spm.spatial.normalise.estwrite.subj.wtsrc = '';
 matlabbatch{1}.spm.spatial.normalise.estwrite.subj.resample = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix );
 
-matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {'/dados3/SOFTWARES/Blade/toolbox_IDOR/spm8/templates/EPI.nii,1'};
-matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.weight = {'/dados3/SOFTWARES/Blade/toolbox_IDOR/spm8/apriori/brainmask.nii,1'};
+matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.template = {fullfile(spm('Dir'), 'templates/EPI.nii,1')};
+matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.weight = {fullfile(spm('Dir'), 'apriori/brainmask.nii,1')};
 matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.smosrc = 8;
 matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.smoref = 0;
 matlabbatch{1}.spm.spatial.normalise.estwrite.eoptions.regtype = 'mni';

@@ -51,8 +51,8 @@ for i = 1:length(subjs)
     
     disp (['Preprocessing for subject: ', name_subj{i} ]);
     
-    %%%%%%%%%%%%%Prepare Directory structure%%%%%%%%%
-    % create subject directory for preprocessing data
+    %%%%%%%%%%%%% Prepare Directory structure %%%%%%%%%
+    % create subject directory for preprocessing data %
     sdirs = dir( fullfile( raw_base, [get_subjid(config, subjs(i), false) '*']) );
     
     % treat first and second visit
@@ -60,86 +60,19 @@ for i = 1:length(subjs)
         current_prefix = start_prefix;
         preproc_dir = fullfile( preproc_base, name_subj{i} ) ;
         
-        if vis == 3
-            error( 'found %s directories for subject %i', [sdirs.name]', i );
-        end
-        
-        if vis == 2 && ( str2num( sdirs(2).name(9:end) ) > sdirs(1).name(9:end) )
-            preproc_dir = [preproc_dir '_2' ];
-        end
-        
         if ~isdir( preproc_dir ),
             mkdir( preproc_dir );
         else
             disp( sprintf('preproc directory %s already exists', preproc_dir ) );
         end
         
-        
-        if export_from_raw_data
-            raw_dir = fullfile( raw_base, sdirs(vis).name );
-            
-            for r=1:nrun
-                
-                raw_dir_run = dir( fullfile( raw_dir, runs_prefix{r} ) );
-                if length(raw_dir_run) ~= 1
-                    error( 'run not found or several matches found. Please clean up directory %s\n', fullfile( raw_dir, runs_prefix{r} )  );
-                end
-                
-                indir = fullfile( raw_dir, raw_dir_run(1).name );
-                indir = strrep(indir, '{rn}', num2str(r) );
-                prefix = sprintf( '%s%s.nii*', run_file_prefix, run_file_suffix );
-                prefix = strrep(prefix, '{rn}', num2str(r) );
-                
-                if preserve_indir
-                    outdir = fullfile( preproc_dir, config.runs_dir{r} );
-                else
-                    outdir = fullfile( preproc_dir, sprintf( 'RUN%i', r) );
-                end
-                copy_gunzip(indir, outdir, prefix);
-                
-            end
-            
-            if norm_anat
-                raw_dir_run = dir( fullfile( raw_dir, anat_prefix ) );
-                if length(raw_dir_run) ~= 1
-                    error( 'anatomical directory not found or several matches found. Please clean up directory %s\n', fullfile( raw_dir, anat_prefix )  );
-                end
-                indir  = fullfile( raw_dir, raw_dir_run(1).name );
-                outdir = fullfile( preproc_dir, sprintf( 'ANAT') );
-                copy_gunzip( indir, outdir, [anat_file '*.gz'] );
-            end
-            
-            if fieldmap
-                
-                fms = utils.resolve_names( fullfile( raw_dir, fieldmap_prefix, '*.nii*' ) );
-                fms = sort(fms);
-                if length(fms) ~= 2
-                    error('two files for fieldmap expected')
-                end
-                fmnames = { 'MAG', 'PHASE' };
-                for k=1:2
-                    ext = regexp(fms{k},'\.nii(\.gz)*$', 'match', 'once');
-                    outdir = fullfile( preproc_dir, 'FIELDMAP' );
-                    outfile = fullfile(outdir, [fmnames{k} ext]);
-                    fmapfiles{k} = regexprep(outfile, '\.gz$', '');
-                    if ~ isdir(outdir)
-                        mkdir(outdir)
-                    end
-                    copyfile(fms{k}, outfile);
-                end
-                
-                gunzip_dir(outdir);
-            end
-            
-        end
-        
         cd( preproc_dir )
         
-        %%%%%%%Fieldmap%%%%%%%%%%%%
+        %%%%%%% Fieldmap %%%%%%%%%%
         if fieldmap
             fmapdir          = fullfile( preproc_dir, 'FIELDMAP' );
-            fmap.phase       = fullfile(fmapdir, 'PHASE.nii,1');
-            fmap.mag         = fullfile(fmapdir, 'MAG.nii,1');
+            fmap.phase       = fullfile( fmapdir, 'PHASE.nii,1');
+            fmap.mag         = fullfile( fmapdir, 'MAG.nii,1');
             fmap.TEs         = config.fieldmapTEs;
             fmap.readoutTime = config.fieldmapReadoutTime;
             fmap.anat        = fullfile( preproc_dir, 'ANAT', [anat_file ',1'] );
@@ -150,7 +83,7 @@ for i = 1:length(subjs)
             files(end).message = sprintf( 'Unwarping for subject: %s\n%s\n', name_subj{i}, preproc_dir);
         end
         
-        %%%%%%%Realignment%%%%%%%%%%%%
+        %%%%%%% Realignment %%%%%%%%%%
         if realign
             clear matlabbatch;
             realignment;
@@ -163,7 +96,7 @@ for i = 1:length(subjs)
             current_prefix = ['r' current_prefix];
         end
         
-        %%%%%%Slicetiming%%%%%%%%%%%%
+        %%%%%%% Slicetiming %%%%%%%%%%
         if slice_timing
             clear matlabbatch;
             slicetiming;
@@ -228,34 +161,6 @@ try
     ps2pdf( 'psfile', ['spm_' datestr(now, 'yyyymmmdd') '.ps'], 'pdffile', ['all_' datestr(now, 'yyyymmmdd') '.pdf'] );
 catch
     warning( 'could not find ps file' )
-end
-end
-
-function copy_gunzip( indir, outdir, prefix )
-import utils.resolve_names;
-if nargin < 2, prefix = '*'; end
-
-files = utils.resolve_names( fullfile(indir, prefix) );
-if( ~isdir(outdir) )
-    mkdir( outdir );
-end
-for file=files
-    copyfile( file{1}, outdir );
-end
-
-gunzip_dir(outdir);
-
-end
-
-% Function to extract all gunzip files inside a folder
-function gunzip_dir(dir_files)
-
-% Try gunzip all gz files
-try
-    cmd = sprintf('find %s -name "*.gz" -type f -exec gunzip -f "{}" \\;', dir_files);
-    system( cmd );
-catch
-    gunzip(fullfile(dir_files, '*.gz'))
 end
 end
 
