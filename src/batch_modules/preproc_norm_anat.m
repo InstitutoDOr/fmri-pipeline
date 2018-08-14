@@ -1,13 +1,9 @@
-run1_dir = get_run_dir(config, 1);
-meanpat = fullfile( preproc_dir, run1_dir, sprintf( '%s%s.nii', run_file_prefix, run_file_suffix ) );
-dirfs = dir( meanpat );
-meanprefix = utils.Var.get( config, 'norm_estimate_prefix', 'meanr');
-meanfile = fullfile( preproc_dir, run1_dir, [meanprefix dirfs(1).name ',1'] );
-
-
+meanprefix   = utils.Var.get( config, 'norm_estimate_prefix', 'meanr_');
+meanbasename = [meanprefix utils.path.basename(funcs{1}) ',1'];
+meanfile     = fullfile(preproc_dir, BIDS.func_dir, meanbasename);
 
 %% from SPM_JOBMAN
-matlabbatch{1}.spm.spatial.preproc.channel.vols = {fullfile( preproc_dir, 'ANAT', anat_file )};
+matlabbatch{1}.spm.spatial.preproc.channel.vols = {anat_file};
 matlabbatch{1}.spm.spatial.preproc.channel.biasreg = 0.001;
 matlabbatch{1}.spm.spatial.preproc.channel.biasfwhm = 60;
 matlabbatch{1}.spm.spatial.preproc.channel.write = [0 1];
@@ -63,7 +59,7 @@ matlabbatch{3}.spm.util.imcalc.options.dtype = 4;
 %%
 matlabbatch{4}.spm.spatial.coreg.estimate.ref(1) = cfg_dep('Image Calculator: Imcalc Computed Image', substruct('.','val', '{}',{3}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','files'));
 matlabbatch{4}.spm.spatial.coreg.estimate.source = {meanfile};
-matlabbatch{4}.spm.spatial.coreg.estimate.other = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix);
+matlabbatch{4}.spm.spatial.coreg.estimate.other = expand_volumes( funcs, [], current_prefix );
 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.cost_fun = 'nmi';
 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.sep = [4 2];
 matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.tol = [0.02 0.02 0.02 0.001 0.001 0.001 0.01 0.01 0.01 0.001 0.001 0.001];
@@ -71,7 +67,7 @@ matlabbatch{4}.spm.spatial.coreg.estimate.eoptions.fwhm = [7 7];
 
 %%
 matlabbatch{5}.spm.spatial.normalise.write.subj.def(1) = cfg_dep('Segment: Forward Deformations', substruct('.','val', '{}',{1}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','fordef', '()',{':'}));
-matlabbatch{5}.spm.spatial.normalise.write.subj.resample = get_scans_concatenated( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix);
+matlabbatch{5}.spm.spatial.normalise.write.subj.resample = expand_volumes( funcs, [], current_prefix );
 matlabbatch{5}.spm.spatial.normalise.write.woptions.bb = [-78 -112 -70
     78 76 85];
 matlabbatch{5}.spm.spatial.normalise.write.woptions.vox = [3 3 3];

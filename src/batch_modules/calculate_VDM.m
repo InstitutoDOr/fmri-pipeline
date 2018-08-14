@@ -1,7 +1,5 @@
 %-----------------------------------------------------------------------
-% Job saved on 06-Mar-2017 14:33:06 by cfg_util (rev $Rev: 6460 $)
-% spm SPM - SPM12 (6470)
-% cfg_basicio BasicIO - Unknown
+% generated using SPM12 (6470)
 %-----------------------------------------------------------------------
 matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.data.presubphasemag.phase{1} = fmap.phase;
 matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.data.presubphasemag.magnitude{1} = fmap.mag;
@@ -21,17 +19,16 @@ matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.mflags.
 matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.mflags.ndilate = 4;
 matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.mflags.thresh = 0.5;
 matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.mflags.reg = 0.02;
+matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.sessname = fmap.suffix;
 
 % input first volume of each run
-scans = get_scans( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix );
-for ns = 1:length(scans)
-    
-    matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.session(ns).epi = scans{ns}(1);
-    vdms{ns,1} = fullfile(fileparts(fmap.phase), sprintf('vdm5_scPHASE_session%i.nii', ns));
+for ns = 1:length(funcs)
+    matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.session(ns).epi{1} = [funcs{ns}, ',1'];
+    vdmname = sprintf('vdm5_sc%s_%s%d.nii', utils.path.basename(fmap.phase, 0), fmap.suffix, ns);
+    vdms{ns,1} = fullfile(fileparts(fmap.phase), vdmname);
 end
         
 matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.matchvdm = 1;
-matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.sessname = 'session';
 matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.writeunwarped = 1;
-matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.anat{1} = fmap.anat;
+matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.anat{1} = [anat_file ',1'];
 matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.matchanat = 1;

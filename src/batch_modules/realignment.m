@@ -1,9 +1,7 @@
 switch(spm('Ver'))
-    
     case 'SPM12'
-        scans = get_scans( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix );
-        for ns = 1:length(scans)
-            matlabbatch{1}.spm.spatial.realignunwarp.data(ns).scans = scans{ns};
+        for ns = 1:length(funcs)
+            matlabbatch{1}.spm.spatial.realignunwarp.data(ns).scans = expand_volumes( funcs(ns), [], current_prefix );
             if exist('vdms', 'var')
                 matlabbatch{1}.spm.spatial.realignunwarp.data(ns).pmscan = vdms(ns);
             else
@@ -34,8 +32,9 @@ switch(spm('Ver'))
         matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.prefix = 'r';
         
     case 'SPM8'
-        
-        matlabbatch{1}.spm.spatial.realign.estwrite.data = get_scans( config, preproc_dir, nrun, nvol, run_file_prefix, run_file_suffix, current_prefix );
+        for ns = 1:length(funcs)
+            matlabbatch{1}.spm.spatial.realign.estwrite.data(ns).scans = expand_volumes( funcs(ns) );
+        end
         matlabbatch{1}.spm.spatial.realign.estwrite.eoptions.quality = 1;
         matlabbatch{1}.spm.spatial.realign.estwrite.eoptions.sep = 4;
         matlabbatch{1}.spm.spatial.realign.estwrite.eoptions.fwhm = 5;

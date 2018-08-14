@@ -4,25 +4,12 @@ import utils.Var;
 preproc_name = config.preproc_name;
 dir_base = config.dir_base;
 raw_base = config.raw_base;
+task_details = loadjson( utils.resolve_name( [raw_base '/*task-' config.task '_*.json'] ) );
+
 preproc_base = config.preproc_base;
-nrun = config.nrun;
-nvol = config.nvol;
-ncorte = config.ncorte;
-TR = config.TR;
-TA = config.TA;
-if( isfield(config, 'sliceorder') )
-    sliceorder = config.sliceorder;
-else
-    sliceorder = [1:ncorte];
-end
 smooth = config.smooth;
-export_from_raw_data = config.export_from_raw_data;
-anat_prefix = config.anat_prefix;
-anat_file = config.anat_file;
 subjs = config.subjs;
 subj_prefix = config.subj_prefix;
-preserve_indir = ~isempty( Var.get(config, 'runs_dir', [])) && (length(config.runs_dir) == length(config.runs_prefix));
-fieldmap_prefix = Var.get(config, 'fieldmap_prefix', []);
 
 % Steps
 fieldmap = Var.get(config, 'fieldmap', 0);
@@ -36,9 +23,6 @@ smoothing = Var.get(config, 'smoothing', 1);
 BIDS = Var.get(config, 'BIDS', BIDS_struct);
 BIDS.task = Var.get(config, 'task', '');
 
-if ~isfield(config, 'start_prefix')
-    config.start_prefix = '';
-end
 start_prefix = Var.get(config, 'start_prefix', '');
 
 spm_dir = fileparts( which( 'spm' ) );
@@ -54,12 +38,14 @@ for i = 1:length(subjs)
     
     %%%%%%%%%%%%% Prepare Directory structure %%%%%%%%%
     % create subject directory for preprocessing data %
-    sdirs = dir( fullfile( raw_base, [get_subjid(config, subjs(i), false) '*']) );
+    sdirs = dir( fullfile( raw_base, name_subj{i}) );
     
     % treat first and second visit
     for vis = 1:length(sdirs)
         current_prefix = start_prefix;
-        preproc_dir = fullfile( preproc_base, name_subj{i} ) ;
+        preproc_dir = fullfile( preproc_base, name_subj{i} );
+        anat_file = utils.resolve_name( fullfile( preproc_dir, BIDS.anat_dir, ['*_' config.anat_suffix '.nii*']) );
+        funcs = neuro.bids.get_scans( fullfile(preproc_dir, BIDS.func_dir), ['sub-*task-' config.task] );
         
         if ~isdir( preproc_dir ),
             mkdir( preproc_dir );
@@ -71,12 +57,14 @@ for i = 1:length(subjs)
         
         %%%%%%% Fieldmap %%%%%%%%%%
         if fieldmap
-            fmapdir          = fullfile( preproc_dir, 'FIELDMAP' );
-            fmap.phase       = fullfile( fmapdir, 'PHASE.nii,1');
-            fmap.mag         = fullfile( fmapdir, 'MAG.nii,1');
-            fmap.TEs         = config.fieldmapTEs;
-            fmap.readoutTime = config.fieldmapReadoutTime;
-            fmap.anat        = fullfile( preproc_dir, 'ANAT', [anat_file ',1'] );
+            fmapdir          = fullfile( preproc_dir, BIDS.fmap_dir );
+            fmap.phase       = [utils.resolve_name(fullfile( fmapdir, 'sub-*_phase*.nii')) ',1'];
+            fmap.phase_hdr   = neuro.bids.loadjson( fmap.phase );
+            fmap.mag         = [utils.resolve_name(fullfile( fmapdir, 'sub-*_magnitude*.nii')) ',1'];
+            fmap.TEs         = [fmap.phase_hdr.EchoTime1 fmap.phase_hdr.EchoTime2] * 1000;
+            fmap.readoutTime = 1000 / task_details.BandwidthPerPixelPhaseEncode;
+            fmap.anat        = [anat_file ',1'];
+            fmap.suffix      = 'func_run-';
             clear matlabbatch;
             calculate_VDM;
             files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_UNWARP.mat');
@@ -157,39 +145,5 @@ for i = 1:length(subjs)
 end;
 
 cd ..
-
-try
-    ps2pdf( 'psfile', ['spm_' datestr(now, 'yyyymmmdd') '.ps'], 'pdffile', ['all_' datestr(now, 'yyyymmmdd') '.pdf'] );
-catch
-    warning( 'could not find ps file' )
-end
-end
-
-function copy_gunzip( indir, outdir, suffix )
-import utils.resolve_names;
-if nargin < 3, suffix = '*'; end
-
-files = utils.resolve_names( [indir suffix] );
-if( ~isdir(outdir) )
-    mkdir( outdir );
-end
-for file=files
-    copyfile( file{1}, outdir, 'f' );
-end
-
-gunzip_dir(outdir);
-
-end
-
-% Function to extract all gunzip files inside a folder
-function gunzip_dir(dir_files)
-
-% Try gunzip all gz files
-try
-    cmd = sprintf('find %s -name "*.gz" -type f -exec gunzip -f "{}" \\;', dir_files);
-    system( cmd );
-catch
-    gunzip(fullfile(dir_files, '*.gz'))
-end
 end
 
