@@ -1,6 +1,7 @@
-meanprefix   = utils.Var.get( config, 'norm_estimate_prefix', 'meanr_');
+meanprefix   = utils.Var.get( config, 'norm_estimate_prefix', 'meanr');
 meanbasename = [meanprefix utils.path.basename(funcs{1}) ',1'];
 meanfile     = fullfile(preproc_dir, BIDS.func_dir, meanbasename);
+spm_dir      = spm('Dir');
 
 %% from SPM_JOBMAN
 matlabbatch{1}.spm.spatial.preproc.channel.vols = {anat_file};

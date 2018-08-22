@@ -4,7 +4,8 @@ import utils.Var;
 preproc_name = config.preproc_name;
 dir_base = config.dir_base;
 raw_base = config.raw_base;
-task_details = loadjson( utils.resolve_name( [raw_base '/*task-' config.task '_*.json'] ) );
+bids_dir = Var.get( config, 'bids_dir', config.raw_base );
+task_details = loadjson( utils.resolve_name( [bids_dir '/*task-' config.task '_*.json'] ) );
 
 preproc_base = config.preproc_base;
 smooth = config.smooth;
@@ -25,35 +26,36 @@ BIDS.task = Var.get(config, 'task', '');
 
 start_prefix = Var.get(config, 'start_prefix', '');
 
-spm_dir = fileparts( which( 'spm' ) );
+spm_dir = spm('Dir');
 
 %% start of pipeline
 if ~isdir( preproc_base ), mkdir( preproc_base ); end
 
 for i = 1:length(subjs)
-    files = {};
-    name_subj{i} = get_subjid(config, subjs(i));
+    name_subj = get_subjid(config, subjs(i));
     
-    disp (['Preprocessing for subject: ', name_subj{i} ]);
+    disp (['Preprocessing for subject: ', name_subj ]);
     
     %%%%%%%%%%%%% Prepare Directory structure %%%%%%%%%
     % create subject directory for preprocessing data %
-    sdirs = dir( fullfile( raw_base, name_subj{i}) );
+    raw_dir  = fullfile( bids_dir, name_subj );
+    ses_dirs = utils.resolve_names( fullfile(raw_dir, 'ses-*') );
+    % If not a longitudinal study, use the raw_dir
+    if isempty(ses_dirs)
+        ses_dirs = raw_dir;
+    end
     
-    % treat first and second visit
-    for vis = 1:length(sdirs)
+    % treat first and second nsit
+    for ns = 1:length(ses_dirs)
+        files = {}; % Files to run with SPM
+        bids_dir = ses_dirs{ns};
+        ses_name = regexp(bids_dir, 'ses-\w+$', 'match', 'once');
+        batch_prefix = [ses_name 'BATCH_'];
         current_prefix = start_prefix;
-        preproc_dir = fullfile( preproc_base, name_subj{i} );
+        
+        preproc_dir = fullfile( preproc_base, name_subj );
         anat_file = utils.resolve_name( fullfile( preproc_dir, BIDS.anat_dir, ['*_' config.anat_suffix '.nii*']) );
         funcs = neuro.bids.get_scans( fullfile(preproc_dir, BIDS.func_dir), ['sub-*task-' config.task] );
-        
-        if ~isdir( preproc_dir ),
-            mkdir( preproc_dir );
-        else
-            disp( sprintf('preproc directory %s already exists', preproc_dir ) );
-        end
-        
-        cd( preproc_dir )
         
         %%%%%%% Fieldmap %%%%%%%%%%
         if fieldmap
@@ -67,20 +69,20 @@ for i = 1:length(subjs)
             fmap.suffix      = 'func_run-';
             clear matlabbatch;
             calculate_VDM;
-            files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_UNWARP.mat');
+            files(end+1).name = fullfile( preproc_dir, [batch_prefix '%d_UNWARP.mat']);
             files(end).matlabbatch = matlabbatch;
-            files(end).message = sprintf( 'Unwarping for subject: %s\n%s\n', name_subj{i}, preproc_dir);
+            files(end).message = sprintf( 'Unwarping for subject: %s\n%s\n', name_subj, preproc_dir);
         end
         
         %%%%%%% Realignment %%%%%%%%%%
         if realign
             clear matlabbatch;
             realignment;
-            files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_REALIGN.mat');
+            files(end+1).name = fullfile( preproc_dir, [batch_prefix '%d_REALIGN.mat']);
             files(end).matlabbatch = matlabbatch;
-            files(end).message = sprintf( 'Realignment for subject: %s\n%s\n', name_subj{i}, preproc_dir);
+            files(end).message = sprintf( 'Realignment for subject: %s\n%s\n', name_subj, preproc_dir);
             
-            normpdf = utils.correctFilename( sprintf('mov_%s.pdf', name_subj{i} ) );
+            normpdf = utils.correctFilename( sprintf('mov_%s.pdf', name_subj ) );
             files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
             current_prefix = ['r' current_prefix];
         end
@@ -89,9 +91,9 @@ for i = 1:length(subjs)
         if slice_timing
             clear matlabbatch;
             slicetiming;
-            files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_SLICETIME.mat');
+            files(end+1).name = fullfile( preproc_dir, [batch_prefix '%d_SLICETIME.mat']);
             files(end).matlabbatch = matlabbatch;
-            files(end).message = sprintf( 'Slicetiming for subject: %s\n%s\n', name_subj{i}, preproc_dir);
+            files(end).message = sprintf( 'Slicetiming for subject: %s\n%s\n', name_subj, preproc_dir);
             current_prefix = ['a' current_prefix];
         end
         
@@ -105,11 +107,11 @@ for i = 1:length(subjs)
                 preproc_norm_anat;
                 
                 %% Setting execution script
-                files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_NORM_ANAT.mat');
+                files(end+1).name = fullfile( preproc_dir, [batch_prefix '%d_NORM_ANAT.mat']);
                 files(end).matlabbatch = matlabbatch;
-                files(end).message = sprintf( 'Normalization structural images for subject: %s\n%s\n', name_subj{i}, preproc_dir );
+                files(end).message = sprintf( 'Normalization structural images for subject: %s\n%s\n', name_subj, preproc_dir );
                 
-                normpdf = utils.correctFilename( sprintf('norm_%s.pdf', name_subj{i} ) );
+                normpdf = utils.correctFilename( sprintf('norm_%s.pdf', name_subj ) );
                 files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
                 current_prefix = ['w' current_prefix];
             end
@@ -117,11 +119,11 @@ for i = 1:length(subjs)
             %%%%%%% Normalization %%%%%%%%%%%%
             clear matlabbatch;
             normalize_affine
-            files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_NORM_AFFINE.mat');
+            files(end+1).name = fullfile( preproc_dir, [batch_prefix '%d_NORM_AFFINE.mat']);
             files(end).matlabbatch = matlabbatch;
-            files(end).message = sprintf( 'Normalization structural images for subject: %s\n%s\n', name_subj{i}, preproc_dir );
+            files(end).message = sprintf( 'Normalization structural images for subject: %s\n%s\n', name_subj, preproc_dir );
             
-            normpdf = utils.correctFilename( sprintf('norm_%s.pdf', name_subj{i} ) );
+            normpdf = utils.correctFilename( sprintf('norm_%s.pdf', name_subj ) );
             files(end).execs = {'utils.ps2pdf_alt( ''psfile'', [''spm_'' datestr(now, ''yyyymmmdd'') ''.ps''], ''pdffile'', ''' normpdf ''');'};
             current_prefix = ['w' current_prefix];
         end
@@ -131,9 +133,9 @@ for i = 1:length(subjs)
         if smoothing
             clear matlabbatch;
             smooth_batch;
-            files(end+1).name = fullfile( preproc_dir, 'BATCH_%d_SMOOTH.mat');
+            files(end+1).name = fullfile( preproc_dir, [batch_prefix '%d_SMOOTH.mat']);
             files(end).matlabbatch = matlabbatch;
-            files(end).message = sprintf( 'Smoothing functional images for subject: %s\n%s\n', name_subj{i}, preproc_dir);
+            files(end).message = sprintf( 'Smoothing functional images for subject: %s\n%s\n', name_subj, preproc_dir);
             current_prefix = ['s' current_prefix];
         end
         
@@ -146,4 +148,3 @@ end;
 
 cd ..
 end
-

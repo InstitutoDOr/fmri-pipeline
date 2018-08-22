@@ -4,16 +4,14 @@ if ~isdir( dest_dir_subj ), mkdir( dest_dir_subj ), end
 
 matlabbatch{1}.spm.stats.fmri_spec.dir = {dest_dir_subj};
 matlabbatch{1}.spm.stats.fmri_spec.timing.units = 'secs';
-matlabbatch{1}.spm.stats.fmri_spec.timing.RT = config.TR;
+matlabbatch{1}.spm.stats.fmri_spec.timing.RT = task_details.RepetitionTime;
 matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t = 16;
 matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 1;
 
-for k=1:nrun
-    
-    scans = get_scans( config, preproc_dir, nrun, nvol, [preproc_prefix run_file_prefix] , run_file_suffix );
+for k=1:length(funcs)
     
     %% scans
-    matlabbatch{1}.spm.stats.fmri_spec.sess(k).scans = scans{k};
+    matlabbatch{1}.spm.stats.fmri_spec.sess(k).scans = expand_volumes( funcs(k) );
     
     %% loop over conditions
     for co = 1:length(sessions(k).names)

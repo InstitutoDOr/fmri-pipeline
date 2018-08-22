@@ -29,11 +29,18 @@ for i = 1:length(subjs)
     
     %%%%%%%%%%%%% Prepare Directory structure %%%%%%%%%
     % create subject directory for preprocessing data %
-    sdirs = dir( fullfile( raw_base, [get_subjid(config, subjs(i), false) '*']) );
+    raw_dir  = fullfile( raw_base, name_subj );
+    ses_dirs = utils.resolve_names( fullfile(raw_dir, 'ses-*') );
+    % If not a longitudinal study, use the raw_dir
+    if isempty(ses_dirs)
+        ses_dirs = raw_dir;
+    end
     
     % treat first and second visit
-    for vis = 1:length(sdirs)
-        preproc_dir = fullfile( preproc_base, name_subj ) ;
+    for ns = 1:length(ses_dirs)
+        bids_dir = ses_dirs{ns};
+        ses_name = regexp(bids_dir, 'ses-\w+$', 'match', 'once');
+        preproc_dir = fullfile( preproc_base, name_subj, ses_name ) ;
         
         if ~isdir( preproc_dir ),
             mkdir( preproc_dir );
@@ -41,11 +48,9 @@ for i = 1:length(subjs)
             fprintf('preproc directory %s already exists', preproc_dir );
         end
         
-        raw_dir = fullfile( raw_base, sdirs(vis).name );
-        
         %% Exporting FUNC data
         pattern = sprintf('*task-%s*.nii*', BIDS.task);
-        raw_files = utils.resolve_names( fullfile( raw_dir, BIDS.func_dir, pattern ) );
+        raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.func_dir, pattern ) );
         
         % Checking number of RUNs
         if length(raw_files) ~= nrun
@@ -61,9 +66,9 @@ for i = 1:length(subjs)
         %% Exporting ANAT data
         if norm_anat
             pattern = sprintf('*%s*.nii*', BIDS.anat_modality);
-            raw_files = utils.resolve_names( fullfile( raw_dir, BIDS.anat_dir, pattern ) );
+            raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.anat_dir, pattern ) );
             if length(raw_files) ~= 1
-                error( 'anatomical directory not found or several matches found. Please clean up directory %s\n', fullfile( raw_dir, anat_prefix )  );
+                error( 'anatomical directory not found or several matches found. Please clean up directory %s\n', fullfile( bids_dir, anat_prefix )  );
             end
             file = regexprep(raw_files{1}, '.nii.*$', ''); % Removing extension
             outdir = fullfile( preproc_dir, BIDS.anat_dir );
@@ -72,7 +77,7 @@ for i = 1:length(subjs)
         
         %% Exporting Field Mapping data
         if fieldmap
-            raw_files = utils.resolve_names( fullfile( raw_dir, BIDS.fmap_dir, '*.nii*' ) );
+            raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.fmap_dir, '*.nii*' ) );
             for raw_file = raw_files
                 file = regexprep(raw_file{1}, '.nii.*$', ''); % Removing extension
                 outdir = fullfile( preproc_dir, BIDS.fmap_dir );

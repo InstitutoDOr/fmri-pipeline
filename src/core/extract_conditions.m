@@ -1,7 +1,9 @@
-function [ conditions ] = extract_conditions( events_tsv )
+function [ conditions ] = extract_conditions( events_tsv, names )
 %EXTRACT_CONDITIONS
 %   events_tsv: Filename in TSV format (Tab-Separated Value)
-
+%   names: List of conditions names to be used
+if nargin < 2, names = []; end
+conditions.names = unique( names );
 events = {};
 
 % Extracting all values
@@ -17,7 +19,10 @@ pos_onset = contains(header, 'onset');
 pos_duration = contains(header, 'duration');
 pos_names = contains(header, {'condition' 'trial_type'});
 
-conditions.names = unique( events(:,pos_names)' );
+if isempty(names)
+    conditions.names = unique( events(:,pos_names)' );
+end
+
 for k = 1:length( conditions.names )
     name = conditions.names{k};
     idxs = contains( events(:,pos_names), name );

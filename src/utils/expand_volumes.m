@@ -11,8 +11,8 @@ end
 
 spm_scans = {};
 for ns = 1:length(scans)
-    img_hdr = neuro.bids.loadjson( scans{ns} );
-    spm_scans = [spm_scans spm_volumes(scans{ns}, img_hdr.dcmmeta_shape(4), prefix)];
+    nframes = get_num_frames( scans{ns} );
+    spm_scans = [spm_scans; spm_volumes(scans{ns}, nframes, prefix)];
 end
 
 end
