@@ -1,16 +1,19 @@
 {
   "name": "fmri-pipeline",
   "description": "Package with tools for generation of pipelines to process fMRI data",
-  "authors": [
+  "license": "MIT",
+  "author": [
     "Bruno Melo <bruno.melo@idor.org>",
     "Sebastian Hoefle <sebastian.hoefle@idor.org>"
   ],
   "moduleType": "matlab",
   "homepage": "https://github.com/InstitutoDOr/fmri-pipeline#readme",
-  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/InstitutoDOr/fmri-pipeline/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/InstitutoDOr/fmri-pipeline.git"
+    "url": "https://github.com/InstitutoDOr/fmri-pipeline.git"
   },
   "dependencies": {
 	"matlab-utils": "~0.4.0"
@@ -18,12 +21,7 @@
   "devDependencies": {
     "m2html": "http://www.artefact.tk/software/matlab/m2html/m2html.zip"
   },
-  "keywords": [
-    "neuroscience",
-    "spm",
-    "nifti",
-    "matlab"
-  ],
+  "keywords": [ "neuroscience", "fmri", "glm", "spm", "MATLAB" ],
   "ignore": [
     "**/.*",
     "**/*.md",
@@ -34,8 +32,5 @@
     "data",
     "vendors",
     "docs"
-  ],
-  "bugs": {
-    "url": "https://github.com/InstitutoDOr/fmri-pipeline/issues"
-  }
+  ]
 }

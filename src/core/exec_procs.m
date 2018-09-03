@@ -7,24 +7,24 @@ if isempty(spm('Figname'))
 end
 
 % Compatibility with old versions
-export_default = Var.get(config, 'export_from_raw_data', 1);
+export_default = Var.get(config, 'export_from_raw_data', 0);
 if Var.get(config.do, 'export_from_raw_data', export_default)
     export_from_raw_data( config );
 end
 
-if config.do.preprocessing
+if Var.get(config.do, 'preprocessing', 0)
     preprocessing( config );
 end
 
 %% FIRST LEVEL
-if config.do.first_level
+if Var.get(config.do, 'first_level', 0)
     run_first_level( config );
 end
 
-if config.do.second_level
+if Var.get(config.do, 'second_level', 0)
     run_second_level( config );
 end
 
-if config.do.extract_betas
+if Var.get(config.do, 'extract_betas', 0)
     extract_betas( config );
 end

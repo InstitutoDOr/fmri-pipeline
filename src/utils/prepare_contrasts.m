@@ -1,6 +1,6 @@
-function [ out ] = prepareContrasts( contrasts )
-%PREPARECONTRASTS Summary of this function goes here
-%   Detailed explanation goes here
+function [ out ] = prepare_contrasts( contrasts )
+%PREPARE_CONTRASTS
+%   Each constrast must have {name, vec [, sessrep]};
 
 n = length(contrasts);
 out(1:n) = struct('name','','vec',[], 'sessrep', 'repl');

@@ -36,10 +36,11 @@ bids_subj_dir    = fullfile( bids_dir, name_subj );
 visits    = utils.resolve_names( fullfile(bids_subj_dir, 'ses-*') );
 % Treat all as one session
 if isempty(visits)
-    visits = [''];
+    visits = {''};
 end
 
 preproc_dir = fullfile( config.preproc_base, name_subj );
+preproc_subdir = Var.get( config, 'preproc_subdir', 'func');
 
 %% set parameters first level
 subdir_name = model.name;
@@ -56,16 +57,15 @@ mov_reg_pat = Var.get(config, 'mov_reg_pat', 'rp_%s.txt');
 for nv = 1:length(visits)
     visit = utils.path.basename(visits{nv});
     dest_dir_subj = fullfile( dest_dir, name_subj, visit );
-    funcs = utils.resolve_names( fullfile(preproc_dir, [config.first_level_preproc_prefix '*' visit '*task-' config.task '*_bold.nii*']) );
-    regressors = utils.resolve_names( fullfile(preproc_dir, 'func', ['*task-' config.task '*_events.tsv']) );
+    funcs = utils.resolve_names( fullfile(preproc_dir, preproc_subdir, [config.first_level_preproc_prefix '*' visit '*task-' config.task '*' config.run_suffix '.nii*']) );
     events = utils.resolve_names( fullfile(bids_subj_dir, visit, 'func', ['*task-' config.task '*_events.tsv']) );
-    outliers = Var.get(config.outliers, strrep(name_subj, 'sub-', ''), []);
+    regressors = utils.resolve_names( fullfile(preproc_dir, preproc_subdir, ['*task-' config.task '*_confounds.tsv']) );
     sessions = [];
     
     %% get conditions
     for r=1:length(funcs)
         func_base = regexp( utils.path.basename(funcs{r}), 'sub-.*_bold', 'match', 'once');
-        conditions = extract_conditions( events{r}, Var.get(model, 'conditions', []) );
+        conditions = extract_conditions( events{r}, Var.get(model, 'conditions', []), Var.get(model, 'cond', []) );
         
         sessions(r).names       = conditions.names;
         sessions(r).onsets      = conditions.onsets;
@@ -87,6 +87,7 @@ for nv = 1:length(visits)
         
         %% OUTLIERS ART
         if Var.get(config, 'art_outliers')
+            outliers = Var.get(config.outliers, strrep(name_subj, 'sub-', ''), []);
             nvol = get_num_frames( funcs{r} );
             sessions(r).regress.name = 'ART outliers';
             first = (nvol * (r-1)) + 1;
