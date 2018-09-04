@@ -154,13 +154,5 @@ for i = 1:length(subjs)
         
     end; % visit
 end;
-
-cd ..
-
-try
-    ps2pdf( 'psfile', ['spm_' datestr(now, 'yyyymmmdd') '.ps'], 'pdffile', ['all_' datestr(now, 'yyyymmmdd') '.pdf'] );
-catch
-    warning( 'could not find ps file' )
-end
 end
 

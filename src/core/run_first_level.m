@@ -74,7 +74,7 @@ for r=1:config.nrun
         
     % Starting compatibility with BIDS
     elseif ( Var.get( config, 'events_file', 0 ) )
-        events = utils.resolve_names( fullfile(preproc_dir, run_dir, 'events.tsv') );
+        events = utils.resolve_names( fullfile(preproc_dir, run_dir, config.events_file) );
         if ~exist( events{1}, 'file' )
             error( 'File not found: %s', events{1} );
         end
