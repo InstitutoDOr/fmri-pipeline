@@ -30,6 +30,7 @@ import utils.Var;
 config.mask = Var.get( config, 'mask', {[spm('Dir') '/tpm/mask_ICV.nii,1']} );
 bids_dir = Var.get( config, 'bids_dir', config.raw_base );
 task_details = loadjson( utils.resolve_name( [bids_dir '/*task-' config.task '_*.json'] ) );
+exp_niigz = Var.get( config, 'experimental_niigz', 0 );
 
 %%%%%%%%%% Getting BIDS Directory %%%%%%%%%
 bids_subj_dir    = fullfile( bids_dir, name_subj );

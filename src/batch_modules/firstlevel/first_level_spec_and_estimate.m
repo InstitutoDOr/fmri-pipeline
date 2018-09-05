@@ -10,7 +10,7 @@ matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 1;
 for k=1:length(funcs)
     
     %% Prepare input (scans)
-    if regexp(funcs{k}, '\.gz$') > 0
+    if ~exp_niigz && regexp(funcs{k}, '\.gz$') > 0
         funcs{k} = utils.file.copy_gunzip_file(funcs{k}, dest_dir_subj);
     end
     matlabbatch{1}.spm.stats.fmri_spec.sess(k).scans = expand_volumes( funcs(k) );

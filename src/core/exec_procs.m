@@ -6,6 +6,14 @@ if isempty(spm('Figname'))
     spm fmri;
 end
 
+% Only for tests - not working
+if Var.get(config, 'experimental_niigz', 0)
+    utilspath = utils.path.getpackpath('utils');
+    addpath( fullfile(utilspath, '../../toolbox/spm') );
+    cfg_getfile('regfilter', 'nifti', {'\.nii(\.gz)*$'});
+    cfg_getfile('regfilter', 'image', {'.*\.nii(\.gz)*(,\d+){0,2}$'});
+end
+
 % Compatibility with old versions
 export_default = Var.get(config, 'export_from_raw_data', 0);
 if Var.get(config.do, 'export_from_raw_data', export_default)
