@@ -1,5 +1,4 @@
 import utils.Var;
-
 if ~isdir( dest_dir_subj ), mkdir( dest_dir_subj ), end
 
 matlabbatch{1}.spm.stats.fmri_spec.dir = {dest_dir_subj};
@@ -10,7 +9,10 @@ matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 1;
 
 for k=1:length(funcs)
     
-    %% scans
+    %% Prepare input (scans)
+    if regexp(funcs{k}, '\.gz$') > 0
+        funcs{k} = utils.file.copy_gunzip_file(funcs{k}, dest_dir_subj);
+    end
     matlabbatch{1}.spm.stats.fmri_spec.sess(k).scans = expand_volumes( funcs(k) );
     
     %% loop over conditions
@@ -21,7 +23,7 @@ for k=1:length(funcs)
         nOnsets = length(sessions(k).onsets{co});
         if Var.get(config, 'one_session') && ( length( sessions(k).durations{co} ) == 1 )
             sessions(k).durations{co} = repmat( sessions(k).durations{co}, 1, nOnsets );
-        end  
+        end
         
         matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(co).name        = sessions(k).names{co};
         matlabbatch{1}.spm.stats.fmri_spec.sess(k).cond(co).onset       = sessions(k).onsets{co};
@@ -38,7 +40,7 @@ for k=1:length(funcs)
     
     matlabbatch{1}.spm.stats.fmri_spec.sess(k).multi = {''};
     if( isstruct( Var.get(sessions(k), 'regress') ) )
-        matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress = Var.get(sessions(k), 'regress');
+        matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress = sessions(k).regress;
     else
         matlabbatch{1}.spm.stats.fmri_spec.sess(k).regress = struct('name', {}, 'val', {});
     end

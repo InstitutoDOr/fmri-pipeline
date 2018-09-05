@@ -70,16 +70,20 @@ for nv = 1:length(visits)
         sessions(r).names       = conditions.names;
         sessions(r).onsets      = conditions.onsets;
         sessions(r).durations   = conditions.durations;
-        sessions(r).regcontrast = struct('name', {}, 'columns', {});
+        sessions(r).regress     = struct('name', {}, 'val', {});
         sessions(r).pmod        = Var.get( conditions, 'pmod', [] );
         sessions(r).regfile     = [];
         
         %% MOVIMENT
         if config.mov_regressor
-            mov_file = utils.resolve_name(fullfile(preproc_dir, sprintf(mov_reg_pat, func_base)));
-            sessions(r).regfile = join_regressor( sessions(r).regfile, mov_file );
-            sessions(r).regcontrast(end+1).name = 'MOV';
-            sessions(r).regcontrast(end).columns = 6;
+            treg = utils.file.tsvread_bids(regressors{r});
+            names = treg.Properties.VariableNames;
+            total = length(names);
+            for nReg = total-5:total % Last 6 columns
+                sessions(r).regress(end+1).name = names{nReg};
+                sessions(r).regress(end).val = treg.(names{nReg});
+            end
+            clear treg;
         end
         
         %% RESPIRATION
