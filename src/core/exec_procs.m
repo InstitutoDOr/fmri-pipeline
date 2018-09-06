@@ -1,9 +1,15 @@
 function exec_procs( config )
 import utils.Var;
+import utils.path.basename;
 
 % Abre SPM para gerar gráficos
 if isempty(spm('Figname'))
     spm fmri;
+end
+
+if isempty(config.subjs)
+    patt = fullfile(config.raw_base, [config.subj_prefix '*/']);
+    config.subjs = utils.resolve_names( patt, 0);
 end
 
 % Compatibility with old versions

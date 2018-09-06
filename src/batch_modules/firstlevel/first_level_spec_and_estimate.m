@@ -1,5 +1,4 @@
 import utils.Var;
-if ~isdir( dest_dir_subj ), mkdir( dest_dir_subj ), end
 
 matlabbatch{1}.spm.stats.fmri_spec.dir = {dest_dir_subj};
 matlabbatch{1}.spm.stats.fmri_spec.timing.units = 'secs';
@@ -10,9 +9,6 @@ matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 1;
 for k=1:length(funcs)
     
     %% Prepare input (scans)
-    if regexp(funcs{k}, '\.gz$') > 0
-        funcs{k} = utils.file.copy_gunzip_file(funcs{k}, dest_dir_subj);
-    end
     matlabbatch{1}.spm.stats.fmri_spec.sess(k).scans = expand_volumes( funcs(k) );
     
     %% loop over conditions

@@ -29,14 +29,21 @@ import utils.Var;
 
 config.mask = Var.get( config, 'mask', {[spm('Dir') '/tpm/mask_ICV.nii,1']} );
 bids_dir = Var.get( config, 'bids_dir', config.raw_base );
-task_details = loadjson( utils.resolve_name( [bids_dir '/*task-' config.task '_*.json'] ) );
+main_pattern = ['*task-' config.task '*']
+task_details = loadjson( utils.resolve_name( [bids_dir '/' main_pattern '_*.json'] ) );
+visits     = Var.get(config, 'visits', []);
+run_suffix = Var.get(config, 'run_suffix', []);
 
 %%%%%%%%%% Getting BIDS Directory %%%%%%%%%
 bids_subj_dir    = fullfile( bids_dir, name_subj );
-visits    = utils.resolve_names( fullfile(bids_subj_dir, 'ses-*') );
-% Treat all as one session
+
+% Visits - If specified, use only what was specified
 if isempty(visits)
-    visits = {''};
+    % Try to define if exist or not visits (sessions)
+    visits = utils.resolve_names( fullfile(bids_subj_dir, 'ses-*'), false );
+    if isempty( visits ) % 
+        visits = {''};
+    end
 end
 
 preproc_dir = fullfile( config.preproc_base, name_subj );
@@ -52,15 +59,23 @@ if config.resp_regressor
     subdir_name = ['RESP_' subdir_name ];
 end
 dest_dir = fullfile( config.proc_base, 'STATS', 'FIRST_LEVEL',  subdir_name );
-mov_reg_pat = Var.get(config, 'mov_reg_pat', 'rp_%s.txt');
+regressors_pat = Var.get(config, 'regressors_pat', [main_pattern '_confounds.tsv']);
 
 for nv = 1:length(visits)
-    visit = utils.path.basename(visits{nv});
-    dest_dir_subj = fullfile( dest_dir, name_subj, visit );
-    funcs = utils.resolve_names( fullfile(preproc_dir, preproc_subdir, [config.first_level_preproc_prefix '*' visit '*task-' config.task '*' config.run_suffix '.nii*']) );
-    events = utils.resolve_names( fullfile(bids_subj_dir, visit, 'func', ['*task-' config.task '*_events.tsv']) );
-    regressors = utils.resolve_names( fullfile(preproc_dir, preproc_subdir, ['*task-' config.task '*_confounds.tsv']) );
+    visit = visits{nv};
     sessions = [];
+    dest_dir_subj = utils.mkdir( fullfile( dest_dir, name_subj, visit ) );
+    funcs = utils.resolve_names( fullfile(preproc_dir, visit, preproc_subdir, [config.first_level_preproc_prefix '*' visit main_pattern run_suffix '.nii*']) );
+    events = utils.resolve_names( fullfile(bids_subj_dir, visit, 'func', [main_pattern '_events.tsv']) );
+    if config.mov_regressor
+        regressors = utils.resolve_names( fullfile(preproc_dir, visit, preproc_subdir, regressors_pat) );
+    end
+    
+    % Extracting gzip, if necessary
+    if regexp(funcs{k}, '\.gz$') > 0
+        scans_dir = utils.mkdir( fullfile( dest_dir_subj, 'scans' ) );
+        funcs{k} = utils.file.copy_gunzip_file(funcs{k}, scans_dir);
+    end
     
     %% get conditions
     for r=1:length(funcs)
@@ -76,8 +91,10 @@ for nv = 1:length(visits)
         
         %% MOVIMENT
         if config.mov_regressor
+            warning('off','MATLAB:table:ModifiedVarnames')
             treg = utils.file.tsvread_bids(regressors{r});
             names = treg.Properties.VariableNames;
+            warning('on','MATLAB:table:ModifiedVarnames')
             total = length(names);
             for nReg = total-5:total % Last 6 columns
                 sessions(r).regress(end+1).name = names{nReg};
@@ -87,23 +104,30 @@ for nv = 1:length(visits)
         end
         
         %% RESPIRATION
-        % TODO using BIDS [specs: 8.6 Phisiological and other continuous recordings]
+        % TODO using BIDS [specs: (8.6) - Phisiological and other continuous recordings]
         
         %% OUTLIERS ART
+        % For now, not prepared to run in generic cases
         if Var.get(config, 'art_outliers')
-            outliers = Var.get(config.outliers, strrep(name_subj, 'sub-', ''), []);
+            % Default (all 0)
             nvol = get_num_frames( funcs{r} );
-            sessions(r).regress.name = 'ART outliers';
-            first = (nvol * (r-1)) + 1;
-            last = nvol * r;
-            art_outs = Var.get(outliers, strrep(visit, 'ses-', ''), []);
             outliers = zeros( nvol, 1 );
-            idx = art_outs( art_outs >= first & art_outs<= last ) - (first-1);
-            outliers(idx) = 1;
-            %Getting outliers
-            sessions(r).regress.val = outliers;
-        end
-        
+            sessions(r).regress(end+1).name = 'ART outliers';
+            sessions(r).regress(end).val = outliers;
+            
+            % Removing only outliers
+            sub_outliers = Var.get(config.outliers, strrep(name_subj, 'sub-', ''), []);
+            art_outs = Var.get(sub_outliers, strrep(visit, 'ses-', ''), []);
+            % Checking if there are ART outliers
+            if ~isempty(art_outs)
+                first = (nvol * (r-1)) + 1;
+                last = nvol * r;
+                idx = art_outs( art_outs >= first & art_outs<= last ) - (first-1);
+                outliers(idx) = 1;
+                %Getting outliers
+                sessions(r).regress(end).val = outliers;
+            end
+        end 
     end
     
     disp( dest_dir_subj );
