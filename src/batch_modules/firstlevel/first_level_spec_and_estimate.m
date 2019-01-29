@@ -69,7 +69,7 @@ matlabbatch{1}.spm.stats.fmri_spec.volt = 1;
 matlabbatch{1}.spm.stats.fmri_spec.global = 'None';
 matlabbatch{1}.spm.stats.fmri_spec.mthresh = Var.get(config,'mthresh', 0.8);
 matlabbatch{1}.spm.stats.fmri_spec.mask = config.mask;
-matlabbatch{1}.spm.stats.fmri_spec.cvi = 'none';
+matlabbatch{1}.spm.stats.fmri_spec.cvi = 'AR(1)';
 
 matlabbatch{2}.spm.stats.fmri_est.spmmat = { fullfile( dest_dir_subj, 'SPM.mat') };
 matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;

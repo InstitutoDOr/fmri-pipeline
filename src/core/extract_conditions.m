@@ -1,9 +1,9 @@
-function [ conditions ] = extract_conditions( events_tsv, names, handlers )
+function [ conditions ] = extract_conditions( events_tsv, conds, handlers )
 %EXTRACT_CONDITIONS
 %   events_tsv: Filename in TSV format (Tab-Separated Value)
 %   names: List of conditions names to be used
-if nargin < 2, names = []; end
-conditions.names = unique( names );
+if nargin < 2, conds = []; end
+conditions.names = unique( {conds.name} );
 events = {};
 
 % Extracting all values
@@ -17,25 +17,37 @@ fclose( fh );
 % Basic variables
 pos_onset = utils.cell.contains(header, 'onset');
 pos_duration = utils.cell.contains(header, 'duration');
-pos_names = utils.cell.contains(header, {'condition' 'trial_type' 'name'});
-if isempty(names)
+pos_names = utils.cell.contains(header, {'trial_type' 'condition' 'name'}); % Looking for one of these names
+if isempty(conds)
     conditions.names = unique( events(:,pos_names)' );
 end
 
+
 for k = 1:length( conditions.names )
     name = conditions.names{k};
-    
     if isempty(handlers)
-        idxs = utils.cell.contains( events(:,pos_names), name );
+        if strcmp(name, 'single')
+            idxs = 1:size(events,1);
+        else
+            idxs = utils.cell.contains( events(:,pos_names), name );
+        end
         conditions.onsets{k} = [events{idxs, pos_onset}];
-        conditions.durations{k} = [events{idxs, pos_duration}]; 
+        conditions.durations{k} = [events{idxs, pos_duration}];
+        if ~isempty(conds(k).pmod)
+            conditions.pmod{k} = conds(k).pmod;
+            for pk = 1:length(conds(k).pmod)
+                pos_pmod = utils.cell.contains(header, conds(k).pmod(pk).name);
+                conditions.pmod{k}(pk).param = [events{idxs, pos_pmod}];
+            end
+        end
     else
         % Handlers will define the conditions
         params = handlers.(name);
         handler = params{1};
-        [onsets, durations] = handler( events, params{2:end} );
+        [onsets, durations, pmod] = handler( events, params{2:end} );
         conditions.onsets{k} = onsets;
         conditions.durations{k}= durations;
+        conditions.pmod{k}= pmod;
     end
 end
 end

@@ -75,8 +75,13 @@ for nv = 1:length(visits)
     for r=1:length(funcs)
         % Extracting gzip, if necessary
         if regexp(funcs{r}, '\.gz$') > 0
+            img_basename = utils.path.basename(funcs{r}, 0);
             scans_dir = utils.mkdir( fullfile( dest_dir_subj, 'scans' ) );
-            funcs{r} = utils.file.copy_gunzip_file(funcs{r}, scans_dir);
+            if ~exist(fullfile(scans_dir, img_basename), 'file')
+                funcs{r} = utils.file.copy_gunzip_file(funcs{r}, scans_dir);
+            else
+                funcs{r} = fullfile(scans_dir, img_basename);
+            end
         end
         
         func_base = regexp( utils.path.basename(funcs{r}), 'sub-.*_bold', 'match', 'once');
