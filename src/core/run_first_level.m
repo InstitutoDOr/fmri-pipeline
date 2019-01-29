@@ -29,7 +29,7 @@ import utils.Var;
 
 config.mask = Var.get( config, 'mask', {[spm('Dir') '/tpm/mask_ICV.nii,1']} );
 bids_dir = Var.get( config, 'bids_dir', config.raw_base );
-main_pattern = ['*task-' config.task '*']
+main_pattern = ['*task-' config.task '*'];
 task_details = loadjson( utils.resolve_name( [bids_dir '/' main_pattern '_*.json'] ) );
 visits     = Var.get(config, 'visits', []);
 run_suffix = Var.get(config, 'run_suffix', []);
@@ -71,14 +71,14 @@ for nv = 1:length(visits)
         regressors = utils.resolve_names( fullfile(preproc_dir, visit, preproc_subdir, regressors_pat) );
     end
     
-    % Extracting gzip, if necessary
-    if regexp(funcs{k}, '\.gz$') > 0
-        scans_dir = utils.mkdir( fullfile( dest_dir_subj, 'scans' ) );
-        funcs{k} = utils.file.copy_gunzip_file(funcs{k}, scans_dir);
-    end
-    
     %% get conditions
     for r=1:length(funcs)
+        % Extracting gzip, if necessary
+        if regexp(funcs{r}, '\.gz$') > 0
+            scans_dir = utils.mkdir( fullfile( dest_dir_subj, 'scans' ) );
+            funcs{r} = utils.file.copy_gunzip_file(funcs{r}, scans_dir);
+        end
+        
         func_base = regexp( utils.path.basename(funcs{r}), 'sub-.*_bold', 'match', 'once');
         conditions = extract_conditions( events{r}, Var.get(model, 'conditions', []), Var.get(model, 'cond', []) );
         
