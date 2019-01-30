@@ -5,7 +5,7 @@ preproc_name = config.preproc_name;
 dir_base = config.dir_base;
 raw_base = config.raw_base;
 bids_dir = Var.get( config, 'bids_dir', config.raw_base );
-task_details = loadjson( utils.resolve_name( [bids_dir '/*task-' config.task '_*.json'] ) );
+%task_details = loadjson( utils.resolve_name( [bids_dir '/*task-' config.task '_*.json'] ) );
 
 preproc_base = config.preproc_base;
 smooth = config.smooth;

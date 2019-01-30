@@ -7,7 +7,7 @@ if isempty(spm('Figname'))
     spm fmri;
 end
 
-if isempty(config.subjs)
+if ~Var.get(config, 'subjs', 0)
     patt = fullfile(config.raw_base, [config.subj_prefix '*/']);
     config.subjs = utils.resolve_names( patt, 0);
 end

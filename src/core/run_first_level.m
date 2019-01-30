@@ -33,6 +33,10 @@ main_pattern = ['*task-' config.task '*'];
 task_details = loadjson( utils.resolve_name( [bids_dir '/' main_pattern '_*.json'] ) );
 visits     = Var.get(config, 'visits', []);
 run_suffix = Var.get(config, 'run_suffix', []);
+overwrite  = Var.get(config, 'overwrite', 0);
+
+preproc_dir = fullfile( config.preproc_base, name_subj );
+preproc_subdir = Var.get( config, 'preproc_subdir', 'func');
 
 %%%%%%%%%% Getting BIDS Directory %%%%%%%%%
 bids_subj_dir    = fullfile( bids_dir, name_subj );
@@ -45,9 +49,6 @@ if isempty(visits)
         visits = {''};
     end
 end
-
-preproc_dir = fullfile( config.preproc_base, name_subj );
-preproc_subdir = Var.get( config, 'preproc_subdir', 'func');
 
 %% set parameters first level
 subdir_name = model.name;
@@ -65,6 +66,13 @@ for nv = 1:length(visits)
     visit = visits{nv};
     sessions = [];
     dest_dir_subj = utils.mkdir( fullfile( dest_dir, name_subj, visit ) );
+    
+    % Do nothing if results exists and overwrite is disabled
+    if exist( fullfile(dest_dir_subj, 'SPM.mat'), 'file' ) && ~overwrite
+        warning('%s already exists and overwrite is disabled. Skipping this session.', fullfile(dest_dir, 'SPM.mat'))
+        continue;
+    end
+        
     funcs = utils.resolve_names( fullfile(preproc_dir, visit, preproc_subdir, [config.first_level_preproc_prefix '*' visit main_pattern run_suffix '.nii*']) );
     events = utils.resolve_names( fullfile(bids_subj_dir, visit, 'func', [main_pattern '_events.tsv']) );
     if config.mov_regressor
@@ -76,7 +84,7 @@ for nv = 1:length(visits)
         % Extracting gzip, if necessary
         if regexp(funcs{r}, '\.gz$') > 0
             img_basename = utils.path.basename(funcs{r}, 0);
-            scans_dir = utils.mkdir( fullfile( dest_dir_subj, 'scans' ) );
+            scans_dir = utils.mkdir( fullfile( dest_dir_subj, '.tmp_scans' ) );
             if ~exist(fullfile(scans_dir, img_basename), 'file')
                 funcs{r} = utils.file.copy_gunzip_file(funcs{r}, scans_dir);
             else
@@ -162,5 +170,9 @@ for nv = 1:length(visits)
     if ~config.only_batch_files
         execSpmFiles( files )
     end
+    
+    % Cleaning temporary directories
+    system( sprintf('rm -rf %s/.tmp*/*.*', dest_dir_subj ) );
+    system( sprintf('rmdir %s/.tmp*', dest_dir_subj) );
 end
 end
