@@ -5,12 +5,13 @@ preproc_name = config.preproc_name;
 dir_base = config.dir_base;
 raw_base = config.raw_base;
 bids_dir = Var.get( config, 'bids_dir', config.raw_base );
-%task_details = loadjson( utils.resolve_name( [bids_dir '/*task-' config.task '_*.json'] ) );
+task_details = loadjson( utils.resolve_name( [bids_dir '/*task-' config.task '_*.json'] ) );
 
 preproc_base = config.preproc_base;
 smooth = config.smooth;
 subjs = config.subjs;
 subj_prefix = config.subj_prefix;
+start_pattern = Var.get(config, 'start_pattern', '');
 
 % Steps
 fieldmap = Var.get(config, 'fieldmap', 0);
@@ -21,8 +22,9 @@ norm_EPI = Var.get(config, 'norm_EPI', 1);
 smoothing = Var.get(config, 'smoothing', 1);
 
 % BIDS
-BIDS = Var.get(config, 'BIDS', BIDS_struct);
+BIDS      = Var.get(config, 'BIDS', BIDS_struct);
 BIDS.task = Var.get(config, 'task', '');
+visits    = Var.get(config, 'visits', []);
 
 start_prefix = Var.get(config, 'start_prefix', '');
 
@@ -39,23 +41,31 @@ for i = 1:length(subjs)
     %%%%%%%%%%%%% Prepare Directory structure %%%%%%%%%
     % create subject directory for preprocessing data %
     raw_dir  = fullfile( bids_dir, name_subj );
-    ses_dirs = utils.resolve_names( fullfile(raw_dir, 'ses-*') );
-    % If not a longitudinal study, use the raw_dir
-    if isempty(ses_dirs)
-        ses_dirs = raw_dir;
+    
+    % Visits - If specified, use only what was specified
+    if isempty(visits)
+        % Try to define if exist or not visits (sessions)
+        visits = utils.resolve_names( fullfile(raw_dir, 'ses-*'), false );
+        if isempty( visits ) %
+            visits = {''};
+        end
     end
     
     % treat first and second nsit
-    for ns = 1:length(ses_dirs)
+    for ns = 1:length(visits)
         files = {}; % Files to run with SPM
-        bids_dir = ses_dirs{ns};
-        ses_name = regexp(bids_dir, 'ses-\w+$', 'match', 'once');
+        ses_name = visits{ns};
         batch_prefix = [ses_name 'BATCH_'];
         current_prefix = start_prefix;
         
-        preproc_dir = fullfile( preproc_base, name_subj );
+        preproc_dir = fullfile( preproc_base, name_subj, ses_name );
         anat_file = utils.resolve_name( fullfile( preproc_dir, BIDS.anat_dir, ['*_' config.anat_suffix '.nii*']) );
-        funcs = neuro.bids.get_scans( fullfile(preproc_dir, BIDS.func_dir), ['sub-*task-' config.task] );
+        if isempty(start_pattern)
+            funcs = neuro.bids.get_scans( fullfile(preproc_dir, BIDS.func_dir), ['sub-*task-' config.task] );
+        else
+            funcs = neuro.bids.get_scans( fullfile(preproc_dir, BIDS.func_dir), start_pattern );
+        end
+        funcs = temp_nii(funcs, fullfile(preproc_dir, BIDS.func_dir));
         
         %%%%%%% Fieldmap %%%%%%%%%%
         if fieldmap
@@ -139,9 +149,22 @@ for i = 1:length(subjs)
             current_prefix = ['s' current_prefix];
         end
         
-        if ~config.only_batch_files
-            execSpmFiles( files )
-        end;
+        execSpmFiles( files )
+        
+        % Saving results and excluding temporary directory
+        if ~isempty(current_prefix)
+            for r=1:length(funcs)
+                [tmpdir, fname] = fileparts(funcs{r});
+                fresult = fullfile(tmpdir, [current_prefix fname '.nii']);
+                fout = fullfile(tmpdir, '..', [fname config.run_suffix '.nii']);
+                movefile(fresult, fout);
+                system( ['gzip "' fout '"'] )
+                gzip(fout);
+            end
+            % Cleaning temporary directories
+            system( sprintf('rm -rf "%s/.tmp*/*.*"', preproc_dir ) );
+            system( sprintf('rmdir "%s/.tmp*"', preproc_dir) );
+        end
         
     end; % visit
 end;

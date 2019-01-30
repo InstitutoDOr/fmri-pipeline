@@ -79,19 +79,10 @@ for nv = 1:length(visits)
         regressors = utils.resolve_names( fullfile(preproc_dir, visit, preproc_subdir, regressors_pat) );
     end
     
+    funcs = temp_nii(funcs, dest_dir_subj);
+    
     %% get conditions
-    for r=1:length(funcs)
-        % Extracting gzip, if necessary
-        if regexp(funcs{r}, '\.gz$') > 0
-            img_basename = utils.path.basename(funcs{r}, 0);
-            scans_dir = utils.mkdir( fullfile( dest_dir_subj, '.tmp_scans' ) );
-            if ~exist(fullfile(scans_dir, img_basename), 'file')
-                funcs{r} = utils.file.copy_gunzip_file(funcs{r}, scans_dir);
-            else
-                funcs{r} = fullfile(scans_dir, img_basename);
-            end
-        end
-        
+    for r=1:length(funcs)       
         func_base = regexp( utils.path.basename(funcs{r}), 'sub-.*_bold', 'match', 'once');
         conditions = extract_conditions( events{r}, Var.get(model, 'conditions', []), Var.get(model, 'cond', []) );
         
