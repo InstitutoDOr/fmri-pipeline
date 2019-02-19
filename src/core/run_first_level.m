@@ -1,24 +1,18 @@
-function run_first_level( config )
+function run_first_level( config, name_subj )
 
 for m = 1:length(config.model)
     
-    for s=1:length(config.subjs)
-        %% Defining subject name and preprocdir
-        name_subj = get_subjid(config, config.subjs(s));
-        
-        %% checking model
-        if iscell(config.model)
-            model = config.model{m}(config, name_subj);
-        else
-            model = config.model(m);
-        end
-        
-        % When model is resolved by a function, it can returned multiple
-        % models that need to be treated as below
-        for nM = 1:length(model)
-            prepare_and_run_FL(config, name_subj, model(nM))
-        end
-        
+    %% checking model
+    if iscell(config.model)
+        model = config.model{m}(config, name_subj);
+    else
+        model = config.model(m);
+    end
+    
+    % When model is resolved by a function, it can returned multiple
+    % models that need to be treated as below
+    for nM = 1:length(model)
+        prepare_and_run_FL(config, name_subj, model(nM))
     end
 end
 end
@@ -45,7 +39,7 @@ bids_subj_dir    = fullfile( bids_dir, name_subj );
 if isempty(visits)
     % Try to define if exist or not visits (sessions)
     visits = utils.resolve_names( fullfile(bids_subj_dir, 'ses-*'), false );
-    if isempty( visits ) % 
+    if isempty( visits ) %
         visits = {''};
     end
 end
@@ -69,10 +63,10 @@ for nv = 1:length(visits)
     
     % Do nothing if results exists and overwrite is disabled
     if exist( fullfile(dest_dir_subj, 'SPM.mat'), 'file' ) && ~overwrite
-        warning('%s already exists and overwrite is disabled. Skipping this session.', fullfile(dest_dir, 'SPM.mat'))
+        warning('%s already exists and overwrite is disabled. Skipping this session.', fullfile(dest_dir_subj, 'SPM.mat'))
         continue;
     end
-        
+    
     funcs = utils.resolve_names( fullfile(preproc_dir, visit, preproc_subdir, [config.first_level_preproc_prefix '*' visit main_pattern run_suffix '.nii*']) );
     events = utils.resolve_names( fullfile(bids_subj_dir, visit, 'func', [main_pattern '_events.tsv']) );
     if config.mov_regressor
@@ -82,7 +76,7 @@ for nv = 1:length(visits)
     funcs = temp_nii(funcs, dest_dir_subj);
     
     %% get conditions
-    for r=1:length(funcs)       
+    for r=1:length(funcs)
         func_base = regexp( utils.path.basename(funcs{r}), 'sub-.*_bold', 'match', 'once');
         conditions = extract_conditions( events{r}, Var.get(model, 'conditions', []), Var.get(model, 'cond', []) );
         
@@ -95,16 +89,20 @@ for nv = 1:length(visits)
         
         %% MOVIMENT
         if config.mov_regressor
-            warning('off','MATLAB:table:ModifiedVarnames')
-            treg = utils.file.tsvread_bids(regressors{r});
-            names = treg.Properties.VariableNames;
-            warning('on','MATLAB:table:ModifiedVarnames')
-            total = length(names);
-            for nReg = total-5:total % Last 6 columns
-                sessions(r).regress(end+1).name = names{nReg};
-                sessions(r).regress(end).val = treg.(names{nReg});
+            if regexp(regressors{r}, '.txt$')
+                sessions(r).regfile = regressors{r};
+            else
+                warning('off','MATLAB:table:ModifiedVarnames')
+                treg = utils.file.tsvread_bids(regressors{r});
+                names = treg.Properties.VariableNames;
+                warning('on','MATLAB:table:ModifiedVarnames')
+                total = length(names);
+                for nReg = total-5:total % Last 6 columns
+                    sessions(r).regress(end+1).name = names{nReg};
+                    sessions(r).regress(end).val = treg.(names{nReg});
+                end
+                clear treg;
             end
-            clear treg;
         end
         
         %% RESPIRATION
@@ -131,7 +129,7 @@ for nv = 1:length(visits)
                 %Getting outliers
                 sessions(r).regress(end).val = outliers;
             end
-        end 
+        end
     end
     
     disp( dest_dir_subj );

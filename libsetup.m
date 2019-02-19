@@ -5,5 +5,5 @@ run( fullfile(fdir, '../matlab-utils/libsetup.m') );
 
 utils.path.includeSubdirs( {
     'src'
-    fullfile(fdir, '../jsonlab')
+    '../jsonlab'
 });

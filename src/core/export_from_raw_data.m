@@ -1,10 +1,9 @@
-function export_from_raw_data( config )
+function export_from_raw_data( config, name_subj )
 import utils.Var;
 
 raw_base = config.raw_base;
 preproc_base = config.preproc_base;
 nrun = config.nrun;
-subjs = config.subjs;
 
 % Steps
 fieldmap = Var.get(config, 'fieldmap', 0);
@@ -22,70 +21,66 @@ end
 %% start of pipeline
 if ~isdir( preproc_base ), mkdir( preproc_base ); end
 
-for i = 1:length(subjs)
-    name_subj = get_subjid(config, subjs(i));
+disp (['Exporting data for subject: ', name_subj ]);
+
+%%%%%%%%%%%%% Prepare Directory structure %%%%%%%%%
+% create subject directory for preprocessing data %
+raw_dir  = fullfile( raw_base, name_subj );
+ses_dirs = utils.resolve_names( fullfile(raw_dir, 'ses-*') );
+% If not a longitudinal study, use the raw_dir
+if isempty(ses_dirs)
+    ses_dirs = raw_dir;
+end
+
+% treat first and second visit
+for ns = 1:length(ses_dirs)
+    bids_dir = ses_dirs{ns};
+    ses_name = regexp(bids_dir, 'ses-\w+$', 'match', 'once');
+    preproc_dir = fullfile( preproc_base, name_subj, ses_name ) ;
     
-    disp (['Exporting data for subject: ', name_subj ]);
-    
-    %%%%%%%%%%%%% Prepare Directory structure %%%%%%%%%
-    % create subject directory for preprocessing data %
-    raw_dir  = fullfile( raw_base, name_subj );
-    ses_dirs = utils.resolve_names( fullfile(raw_dir, 'ses-*') );
-    % If not a longitudinal study, use the raw_dir
-    if isempty(ses_dirs)
-        ses_dirs = raw_dir;
+    if ~isdir( preproc_dir ),
+        mkdir( preproc_dir );
+    else
+        fprintf('preproc directory %s already exists', preproc_dir );
     end
     
-    % treat first and second visit
-    for ns = 1:length(ses_dirs)
-        bids_dir = ses_dirs{ns};
-        ses_name = regexp(bids_dir, 'ses-\w+$', 'match', 'once');
-        preproc_dir = fullfile( preproc_base, name_subj, ses_name ) ;
-        
-        if ~isdir( preproc_dir ),
-            mkdir( preproc_dir );
-        else
-            fprintf('preproc directory %s already exists', preproc_dir );
+    %% Exporting FUNC data
+    pattern = sprintf('*task-%s*.nii*', BIDS.task);
+    raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.func_dir, pattern ) );
+    
+    % Checking number of RUNs
+    if length(raw_files) ~= nrun
+        error( 'Number of functional runs different of %d.', nrun );
+    end
+    
+    for raw_file = raw_files
+        outdir = fullfile( preproc_dir, BIDS.func_dir );
+        file = regexprep(raw_file{1}, '.nii.*$', ''); % Removing extension
+        copy_gunzip(file, outdir);
+    end
+    
+    %% Exporting ANAT data
+    if norm_anat
+        pattern = sprintf('*%s*.nii*', BIDS.anat_modality);
+        raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.anat_dir, pattern ) );
+        if length(raw_files) ~= 1
+            error( 'anatomical directory not found or several matches found. Please clean up directory %s\n', fullfile( bids_dir, anat_prefix )  );
         end
-        
-        %% Exporting FUNC data
-        pattern = sprintf('*task-%s*.nii*', BIDS.task);
-        raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.func_dir, pattern ) );
-        
-        % Checking number of RUNs
-        if length(raw_files) ~= nrun
-            error( 'Number of functional runs different of %d.', nrun );
-        end
-        
+        file = regexprep(raw_files{1}, '.nii.*$', ''); % Removing extension
+        outdir = fullfile( preproc_dir, BIDS.anat_dir );
+        copy_gunzip( file, outdir );
+    end
+    
+    %% Exporting Field Mapping data
+    if fieldmap
+        raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.fmap_dir, '*.nii*' ) );
         for raw_file = raw_files
-            outdir = fullfile( preproc_dir, BIDS.func_dir );
             file = regexprep(raw_file{1}, '.nii.*$', ''); % Removing extension
-            copy_gunzip(file, outdir);
-        end
-        
-        %% Exporting ANAT data
-        if norm_anat
-            pattern = sprintf('*%s*.nii*', BIDS.anat_modality);
-            raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.anat_dir, pattern ) );
-            if length(raw_files) ~= 1
-                error( 'anatomical directory not found or several matches found. Please clean up directory %s\n', fullfile( bids_dir, anat_prefix )  );
-            end
-            file = regexprep(raw_files{1}, '.nii.*$', ''); % Removing extension
-            outdir = fullfile( preproc_dir, BIDS.anat_dir );
+            outdir = fullfile( preproc_dir, BIDS.fmap_dir );
             copy_gunzip( file, outdir );
         end
-        
-        %% Exporting Field Mapping data
-        if fieldmap
-            raw_files = utils.resolve_names( fullfile( bids_dir, BIDS.fmap_dir, '*.nii*' ) );
-            for raw_file = raw_files
-                file = regexprep(raw_file{1}, '.nii.*$', ''); % Removing extension
-                outdir = fullfile( preproc_dir, BIDS.fmap_dir );
-                copy_gunzip( file, outdir );
-            end
-        end
-    end % visit
-end
+    end
+end % visit
 end
 
 
