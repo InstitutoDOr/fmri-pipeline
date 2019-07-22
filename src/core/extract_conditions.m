@@ -3,7 +3,11 @@ function [ conditions ] = extract_conditions( events_tsv, conds, handlers )
 %   events_tsv: Filename in TSV format (Tab-Separated Value)
 %   names: List of conditions names to be used
 if nargin < 2, conds = []; end
-conditions.names = unique( {conds.name} );
+try
+    conditions.names = unique( {conds.name} );
+catch
+    conditions.names = unique( conds );
+end
 events = {};
 
 % Extracting all values
@@ -22,7 +26,7 @@ if isempty(conds)
     conditions.names = unique( events(:,pos_names)' );
 end
 
-
+data = struct('header', {header}, 'events', {events});
 for k = 1:length( conditions.names )
     name = conditions.names{k};
     if isempty(handlers)
@@ -33,7 +37,7 @@ for k = 1:length( conditions.names )
         end
         conditions.onsets{k} = [events{idxs, pos_onset}];
         conditions.durations{k} = [events{idxs, pos_duration}];
-        if ~isempty(conds(k).pmod)
+        if isfield(conds(k), 'pmod') && ~isempty(conds(k).pmod)
             conditions.pmod{k} = conds(k).pmod;
             for pk = 1:length(conds(k).pmod)
                 pos_pmod = utils.cell.contains(header, conds(k).pmod(pk).name);
@@ -44,7 +48,7 @@ for k = 1:length( conditions.names )
         % Handlers will define the conditions
         params = handlers.(name);
         handler = params{1};
-        [onsets, durations, pmod] = handler( events, params{2:end} );
+        [onsets, durations, pmod] = handler(data, params{2:end} );
         conditions.onsets{k} = onsets;
         conditions.durations{k}= durations;
         conditions.pmod{k}= pmod;

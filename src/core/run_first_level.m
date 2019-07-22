@@ -28,6 +28,7 @@ task_details = loadjson( utils.resolve_name( [bids_dir '/' main_pattern '_*.json
 visits     = Var.get(config, 'visits', []);
 run_suffix = Var.get(config, 'run_suffix', []);
 overwrite  = Var.get(config, 'overwrite', 0);
+events_file  = Var.get(config, 'events_file', 'events.tsv');
 
 preproc_dir = fullfile( config.preproc_base, name_subj );
 preproc_subdir = Var.get( config, 'preproc_subdir', 'func');
@@ -54,7 +55,7 @@ if config.resp_regressor
     subdir_name = ['RESP_' subdir_name ];
 end
 dest_dir = fullfile( config.proc_base, 'STATS', 'FIRST_LEVEL',  subdir_name );
-regressors_pat = Var.get(config, 'regressors_pat', [main_pattern '_confounds.tsv']);
+regressors_pat = Var.get(config, 'regressors_pat', [main_pattern '-confounds_regressors.tsv']);
 
 for nv = 1:length(visits)
     visit = visits{nv};
@@ -68,7 +69,7 @@ for nv = 1:length(visits)
     end
     
     funcs = utils.resolve_names( fullfile(preproc_dir, visit, preproc_subdir, [config.first_level_preproc_prefix '*' visit main_pattern run_suffix '.nii*']) );
-    events = utils.resolve_names( fullfile(bids_subj_dir, visit, 'func', [main_pattern '_events.tsv']) );
+    events = utils.resolve_names( fullfile(bids_subj_dir, visit, 'func', [main_pattern events_file]) );
     if config.mov_regressor
         regressors = utils.resolve_names( fullfile(preproc_dir, visit, preproc_subdir, regressors_pat) );
     end
@@ -93,8 +94,12 @@ for nv = 1:length(visits)
             treg = utils.file.tsvread_bids(regressors{r});
             names = treg.Properties.VariableNames;
             warning('on','MATLAB:table:ModifiedVarnames')
-            total = length(names);
-            for nReg = total-5:total % Last 6 columns
+            if ~isempty(Var.get(config, 'mov_regressors', []))
+                idxs = find(ismember(names, config.mov_regressors));
+            else
+                idxs = total-5:total; % Last 6 columns
+            end
+            for nReg = idxs % Last 6 columns
                 sessions(r).regress(end+1).name = names{nReg};
                 sessions(r).regress(end).val = treg.(names{nReg});
             end
@@ -157,7 +162,9 @@ for nv = 1:length(visits)
     end
     
     % Cleaning temporary directories
-    system( sprintf('rm -rf %s/.tmp*/*.*', dest_dir_subj ) );
-    system( sprintf('rmdir %s/.tmp*', dest_dir_subj) );
+    if exist( fullfile(dest_dir_subj, '.tmp'), 'dir' )
+        system( sprintf('rm -rf %s/.tmp*/*.*', dest_dir_subj ) );
+        system( sprintf('rmdir %s/.tmp*', dest_dir_subj) );
+    end
 end
 end
