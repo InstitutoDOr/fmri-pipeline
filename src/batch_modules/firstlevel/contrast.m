@@ -12,8 +12,8 @@ for k=1:length(model.contrast)
     
 end
 
-if utils.Var.get( model, 'contrasts_f', 0 )
-    if length(sessions(1).names) > 0
+if utils.Var.get( model, 'contrasts_f', false ) == 1
+    if ~isempty(sessions(1).names)
         matlabbatch{1}.spm.stats.con.consess{length(model.contrast)+1}.fcon.name = 'EOI';
         matlabbatch{1}.spm.stats.con.consess{length(model.contrast)+1}.fcon.convec = { eye(length(sessions(1).names)); }';
         matlabbatch{1}.spm.stats.con.consess{length(model.contrast)+1}.fcon.sessrep = 'repl';
@@ -21,7 +21,7 @@ if utils.Var.get( model, 'contrasts_f', 0 )
             if ~isempty(sessions(r).regfile)
                 
                 tmp = load( sessions(r).regfile );
-                [tmp2 tmp_name tmp_ext] = fileparts( sessions(r).regfile );
+                [tmp2, tmp_name, tmp_ext] = fileparts( sessions(r).regfile );
                 
                 matlabbatch{1}.spm.stats.con.consess{length(model.contrast)+2}.fcon.name = 'EOI_ALL';
                 matlabbatch{1}.spm.stats.con.consess{length(model.contrast)+2}.fcon.convec = { eye(length(sessions(1).names)+size(tmp,2)) }';

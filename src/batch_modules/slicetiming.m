@@ -1,5 +1,5 @@
 fmri_hdr = neuro.bids.loadjson( funcs{1} );
-nslices = task_details.dcmmeta_shape(3);
+nslices = length(fmri_hdr.SliceTiming);
 TR = task_details.RepetitionTime;
 [~, slice_order] = sort(fmri_hdr.SliceTiming);
 

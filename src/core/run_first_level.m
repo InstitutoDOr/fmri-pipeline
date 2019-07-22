@@ -89,20 +89,16 @@ for nv = 1:length(visits)
         
         %% MOVIMENT
         if config.mov_regressor
-            if regexp(regressors{r}, '.txt$')
-                sessions(r).regfile = regressors{r};
-            else
-                warning('off','MATLAB:table:ModifiedVarnames')
-                treg = utils.file.tsvread_bids(regressors{r});
-                names = treg.Properties.VariableNames;
-                warning('on','MATLAB:table:ModifiedVarnames')
-                total = length(names);
-                for nReg = total-5:total % Last 6 columns
-                    sessions(r).regress(end+1).name = names{nReg};
-                    sessions(r).regress(end).val = treg.(names{nReg});
-                end
-                clear treg;
+            warning('off','MATLAB:table:ModifiedVarnames')
+            treg = utils.file.tsvread_bids(regressors{r});
+            names = treg.Properties.VariableNames;
+            warning('on','MATLAB:table:ModifiedVarnames')
+            total = length(names);
+            for nReg = total-5:total % Last 6 columns
+                sessions(r).regress(end+1).name = names{nReg};
+                sessions(r).regress(end).val = treg.(names{nReg});
             end
+            clear treg;
         end
         
         %% RESPIRATION

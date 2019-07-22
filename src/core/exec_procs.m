@@ -2,12 +2,12 @@ function exec_procs( config )
 import utils.Var;
 import utils.path.basename;
 
-% Abre SPM para gerar gráficos
+% Abre SPM para gerar gr??ficos
 if isempty(spm('Figname'))
     spm fmri;
 end
 
-if ~Var.get(config, 'subjs', 0)
+if isempty(Var.get(config, 'subjs', []))
     patt = fullfile(config.raw_base, [config.subj_prefix '*/']);
     config.subjs = utils.resolve_names( patt, 0);
 end
@@ -35,10 +35,10 @@ for i = 1:length(config.subjs)
             extract_betas( config, subj );
         end
     catch e
-        if Var.get(config, 'stop_with_error', 0)
-            throw(e)
+        if Var.get(config, 'stop_with_error', 1)
+            rethrow(e)
         end
-        disp(e)
+        getReport(e)
     end
 end
 

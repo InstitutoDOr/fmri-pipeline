@@ -3,11 +3,7 @@ function [ conditions ] = extract_conditions( events_tsv, conds, handlers )
 %   events_tsv: Filename in TSV format (Tab-Separated Value)
 %   names: List of conditions names to be used
 if nargin < 2, conds = []; end
-if isstruct(conds)
-    conditions.names = unique( {conds.name} );
-else
-    conditions.names = unique( conds );
-end
+conditions.names = unique( {conds.name} );
 events = {};
 
 % Extracting all values
